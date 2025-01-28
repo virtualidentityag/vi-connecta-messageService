@@ -31,6 +31,7 @@
     <openapi.generator.maven.version>6.4.0</openapi.generator.maven.version>
     <liquibase-core.version>4.23.2</liquibase-core.version>
     <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
+    <spring-security.version>6.3.4</spring-security.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
     <spring-security-test.version>6.0.8</spring-security-test.version>
     <maven.compiler.source>17</maven.compiler.source>
