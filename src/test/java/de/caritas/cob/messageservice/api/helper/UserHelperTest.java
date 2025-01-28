@@ -2,40 +2,40 @@ package de.caritas.cob.messageservice.api.helper;
 
 import static de.caritas.cob.messageservice.testhelper.TestConstants.USERNAME_DECODED;
 import static de.caritas.cob.messageservice.testhelper.TestConstants.USERNAME_ENCODED;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserHelperTest {
+@ExtendWith(MockitoExtension.class)
+class UserHelperTest {
 
   private UserHelper userHelper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     this.userHelper = new UserHelper();
   }
 
   @Test
-  public void encodeUsername_Should_ReturnEncodedUsernameWithReplacedPaddingAndAddedPrefix_WhenDecodedUsernameIsGiven() {
+  void encodeUsername_Should_ReturnEncodedUsernameWithReplacedPaddingAndAddedPrefix_WhenDecodedUsernameIsGiven() {
     assertEquals(USERNAME_ENCODED, userHelper.encodeUsername(USERNAME_DECODED));
   }
 
   @Test
-  public void encodeUsername_Should_ReturnEncodedUsername_WhenEncodedUsernameIsGiven() {
+  void encodeUsername_Should_ReturnEncodedUsername_WhenEncodedUsernameIsGiven() {
     assertEquals(USERNAME_ENCODED, userHelper.encodeUsername(USERNAME_ENCODED));
   }
 
   @Test
-  public void decodeUsername_Should_ReturnDecodedUsername_WhenEncodedUsernameIsGiven() {
+  void decodeUsername_Should_ReturnDecodedUsername_WhenEncodedUsernameIsGiven() {
     assertEquals(USERNAME_DECODED, userHelper.decodeUsername(USERNAME_ENCODED));
   }
 
   @Test
-  public void decodeUsername_Should_ReturnDecodedUsername_WhenDecodedUsernameIsGiven() {
+  void decodeUsername_Should_ReturnDecodedUsername_WhenDecodedUsernameIsGiven() {
     assertEquals(USERNAME_DECODED, userHelper.decodeUsername(USERNAME_DECODED));
   }
 

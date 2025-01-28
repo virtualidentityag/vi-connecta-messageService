@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Data;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 @Data
 public class Message {
@@ -41,7 +41,7 @@ public class Message {
 
   @JsonIgnore
   public boolean isA(MessageType messageType) {
-    if (StringUtils.isEmpty(alias)) {
+    if (ObjectUtils.isEmpty(alias)) {
       return false;
     }
 

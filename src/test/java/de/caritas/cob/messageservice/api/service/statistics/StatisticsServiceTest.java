@@ -13,21 +13,21 @@ import de.caritas.cob.messageservice.api.service.statistics.event.CreateMessageS
 import de.caritas.cob.messageservice.statisticsservice.generated.web.model.EventType;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.messaging.Message;
 
-@RunWith(MockitoJUnitRunner.class)
-public class StatisticsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class StatisticsServiceTest {
 
   private static final String FIELD_NAME_STATISTICS_ENABLED = "statisticsEnabled";
   private static final String FIELD_NAME_RABBIT_EXCHANGE_NAME = "rabbitMqExchangeName";
@@ -39,16 +39,16 @@ public class StatisticsServiceTest {
   @InjectMocks private StatisticsService statisticsService;
   @Mock private AmqpTemplate amqpTemplate;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     createMessageStatisticsEvent = Mockito.mock(CreateMessageStatisticsEvent.class);
-    when(createMessageStatisticsEvent.getEventType()).thenReturn(eventType);
-    when(createMessageStatisticsEvent.getPayload()).thenReturn(Optional.of(PAYLOAD));
+    Mockito.lenient().when(createMessageStatisticsEvent.getEventType()).thenReturn(eventType);
+    Mockito.lenient().when(createMessageStatisticsEvent.getPayload()).thenReturn(Optional.of(PAYLOAD));
     setField(statisticsService, FIELD_NAME_RABBIT_EXCHANGE_NAME, RABBIT_EXCHANGE_NAME);
   }
 
   @Test
-  public void fireEvent_Should_NotSendStatisticsMessage_WhenStatisticsIsDisabled() {
+  void fireEvent_Should_NotSendStatisticsMessage_WhenStatisticsIsDisabled() {
 
     setField(statisticsService, FIELD_NAME_STATISTICS_ENABLED, false);
     statisticsService.fireEvent(createMessageStatisticsEvent);
@@ -57,7 +57,7 @@ public class StatisticsServiceTest {
   }
 
   @Test
-  public void fireEvent_Should_SendStatisticsMessage_WhenStatisticsIsEnabled() {
+  void fireEvent_Should_SendStatisticsMessage_WhenStatisticsIsEnabled() {
 
     setField(statisticsService, FIELD_NAME_STATISTICS_ENABLED, true);
     when(createMessageStatisticsEvent.getEventType()).thenReturn(eventType);
@@ -73,7 +73,7 @@ public class StatisticsServiceTest {
   }
 
   @Test
-  public void fireEvent_Should_NotSendMessageToQueue_WhenPayloadIsEmpty() {
+  void fireEvent_Should_NotSendMessageToQueue_WhenPayloadIsEmpty() {
 
     setField(statisticsService, FIELD_NAME_STATISTICS_ENABLED, true);
     when(createMessageStatisticsEvent.getPayload()).thenReturn(Optional.empty());
@@ -82,7 +82,7 @@ public class StatisticsServiceTest {
   }
 
   @Test
-  public void fireEvent_Should_UseEventTypeAsTopicAndSendPayloadOfEvent() {
+  void fireEvent_Should_UseEventTypeAsTopicAndSendPayloadOfEvent() {
 
     setField(statisticsService, FIELD_NAME_STATISTICS_ENABLED, true);
     statisticsService.fireEvent(createMessageStatisticsEvent);

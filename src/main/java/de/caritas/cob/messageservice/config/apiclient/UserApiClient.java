@@ -9,7 +9,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
-import javax.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.InternalServerErrorException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -66,7 +66,7 @@ public class UserApiClient extends de.caritas.cob.messageservice.userservice.gen
 
     } catch (IntrospectionException exception) {
       throw new InternalServerErrorException(
-          String.format("Could not obtain method properties of %s", queryValue),
+          "Could not obtain method properties of %s".formatted(queryValue),
           exception);
     }
   }
@@ -80,7 +80,7 @@ public class UserApiClient extends de.caritas.cob.messageservice.userservice.gen
       }
     } catch (Exception exception) {
       throw new InternalServerErrorException(
-          String.format("Could not obtain method key value pairs of %s", queryValue.toString()),
+          "Could not obtain method key value pairs of %s".formatted(queryValue.toString()),
           exception);
     }
   }

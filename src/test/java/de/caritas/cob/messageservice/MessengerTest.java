@@ -7,6 +7,7 @@ import static de.caritas.cob.messageservice.testhelper.TestConstants.SEND_NOTIFI
 import static de.caritas.cob.messageservice.testhelper.TestConstants.createSuccessfulMessageResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,19 +44,19 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.collections4.SetUtils;
 import org.jeasy.random.EasyRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MessengerTest {
+@ExtendWith(MockitoExtension.class)
+class MessengerTest {
 
   private static final String RC_TOKEN = "r94qMDk8gtgVNzqCq9zD2hELK-eXGB5VHlUVBgE8a8f";
   private static final String RC_USER_ID = "pptLwARyTMzbTTRdg";
@@ -97,77 +98,81 @@ public class MessengerTest {
   private MessageMapper mapper = new MessageMapper(new ObjectMapper(), null);
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     setField(this.messenger, "rocketChatSystemUserId", RC_SYSTEM_USER_ID);
-    when(authenticatedUser.getRoles())
+    Mockito.lenient().when(authenticatedUser.getRoles())
         .thenReturn(SetUtils.unmodifiableSet(Role.CONSULTANT.getRoleName()));
-    when(authenticatedUser.getUserId())
+    Mockito.lenient().when(authenticatedUser.getUserId())
         .thenReturn(CONSULTANT_ID);
   }
 
   /**
    * Tests for method: postGroupMessage
    */
-  @Test(expected = InternalServerErrorException.class)
-  public void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatPostMessageFails()
-      throws CustomCryptoException {
+  @Test
+  void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatPostMessageFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
 
-    RocketChatSendMessageException rocketChatSendMessageException =
-        new RocketChatSendMessageException(new Exception());
+      RocketChatSendMessageException rocketChatSendMessageException =
+          new RocketChatSendMessageException(new Exception());
 
-    var groupMessage = createGroupMessage().build();
-    when(rocketChatService.postGroupMessage(groupMessage)).thenThrow(
-        rocketChatSendMessageException);
+      var groupMessage = createGroupMessage().build();
+      when(rocketChatService.postGroupMessage(groupMessage)).thenThrow(
+          rocketChatSendMessageException);
 
-    messenger.postGroupMessage(groupMessage);
+      messenger.postGroupMessage(groupMessage);
 
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
-        Optional.empty(), null);
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsEmptyDTO()
-      throws CustomCryptoException {
-
-    var groupMessage = createGroupMessage().build();
-    when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(null);
-
-    messenger.postGroupMessage(groupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
-        Optional.empty(), null);
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsUnsuccessful()
-      throws CustomCryptoException {
-
-    var groupMessage = createGroupMessage().build();
-    when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(
-        POST_MESSAGE_RESPONSE_DTO_UNSUCCESSFUL);
-
-    messenger.postGroupMessage(groupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
-        Optional.empty(), null);
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postGroupMessage_Should_ReturnRocketChatPostMarkGroupAsReadExceptionAndNotSendNotification_When_RocketChatMarkGroupAsReadFails()
-      throws CustomCryptoException {
-
-    var groupMessage = createGroupMessage().build();
-    when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(null);
-
-    messenger.postGroupMessage(groupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
-        Optional.empty(), null);
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
+          Optional.empty(), null);
+    });
   }
 
   @Test
-  public void postGroupMessage_Should_ReturnCreatedAndSendNotification_When_MessageWasSentAndNotificationIsSetToTrue()
+  void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsEmptyDTO() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      var groupMessage = createGroupMessage().build();
+      when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(null);
+
+      messenger.postGroupMessage(groupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
+          Optional.empty(), null);
+    });
+  }
+
+  @Test
+  void postGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsUnsuccessful() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      var groupMessage = createGroupMessage().build();
+      when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(
+          POST_MESSAGE_RESPONSE_DTO_UNSUCCESSFUL);
+
+      messenger.postGroupMessage(groupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
+          Optional.empty(), null);
+    });
+  }
+
+  @Test
+  void postGroupMessage_Should_ReturnRocketChatPostMarkGroupAsReadExceptionAndNotSendNotification_When_RocketChatMarkGroupAsReadFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      var groupMessage = createGroupMessage().build();
+      when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(null);
+
+      messenger.postGroupMessage(groupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
+          Optional.empty(), null);
+    });
+  }
+
+  @Test
+  void postGroupMessage_Should_ReturnCreatedAndSendNotification_When_MessageWasSentAndNotificationIsSetToTrue()
       throws CustomCryptoException {
 
     var groupMessage = createGroupMessage().sendNotification(SEND_NOTIFICATION).build();
@@ -180,7 +185,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postGroupMessage_Should_ReturnCreatedAndNotSendNotification_When_MessageWasSentAndNotificationIsSetToFalse()
+  void postGroupMessage_Should_ReturnCreatedAndNotSendNotification_When_MessageWasSentAndNotificationIsSetToFalse()
       throws CustomCryptoException {
 
     var groupMessage = createGroupMessage().build();
@@ -195,75 +200,79 @@ public class MessengerTest {
   /**
    * Tests for method: postFeedbackGroupMessage
    */
-  @Test(expected = InternalServerErrorException.class)
-  public void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatPostMessageFails()
-      throws CustomCryptoException {
+  @Test
+  void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatPostMessageFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
 
-    RocketChatSendMessageException rocketChatSendMessageException =
-        new RocketChatSendMessageException(new Exception());
+      RocketChatSendMessageException rocketChatSendMessageException =
+          new RocketChatSendMessageException(new Exception());
 
-    when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
-        .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
-    var feedbackGroupMessage = createFeedbackGroupMessage().build();
-    when(rocketChatService.postGroupMessage(feedbackGroupMessage)).thenThrow(
-        rocketChatSendMessageException);
+      when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
+          .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
+      var feedbackGroupMessage = createFeedbackGroupMessage().build();
+      when(rocketChatService.postGroupMessage(feedbackGroupMessage)).thenThrow(
+          rocketChatSendMessageException);
 
-    messenger.postFeedbackGroupMessage(feedbackGroupMessage);
+      messenger.postFeedbackGroupMessage(feedbackGroupMessage);
 
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
-        Optional.empty(), null);
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendFeedbackNotification_When_RocketChatServiceReturnsEmptyDTO()
-      throws CustomCryptoException {
-
-    when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
-        .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
-    var feedbackGroupMessage = createFeedbackGroupMessage().build();
-    when(rocketChatService.postGroupMessage(feedbackGroupMessage))
-        .thenReturn(null);
-
-    messenger.postFeedbackGroupMessage(feedbackGroupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(
-        RC_FEEDBACK_GROUP_ID, any(), anyString());
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsUnsuccessful()
-      throws CustomCryptoException {
-
-    when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
-        .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
-    var groupMessage = createGroupMessage().build();
-    when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(
-        POST_MESSAGE_RESPONSE_DTO_UNSUCCESSFUL);
-    var feedbackGroupMessage = createFeedbackGroupMessage().build();
-
-    messenger.postFeedbackGroupMessage(feedbackGroupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_FEEDBACK_GROUP_ID,
-        Optional.empty(), null);
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void postFeedbackGroupMessage_Should_ReturnRocketChatPostMarkGroupAsReadExceptionAndNotSendFeedbackNotification_When_RocketChatMarkGroupAsReadFails()
-      throws CustomCryptoException {
-
-    when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
-        .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
-    var feedbackGroupMessage = createFeedbackGroupMessage().build();
-    when(rocketChatService.postGroupMessage(feedbackGroupMessage)).thenReturn(null);
-
-    messenger.postFeedbackGroupMessage(feedbackGroupMessage);
-
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(
-        RC_FEEDBACK_GROUP_ID, any(), anyString());
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_GROUP_ID,
+          Optional.empty(), null);
+    });
   }
 
   @Test
-  public void postFeedbackGroupMessage_Should_ReturnCreatedAndSendFeedbackNotification_When_RocketChatServiceSucceeds()
+  void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendFeedbackNotification_When_RocketChatServiceReturnsEmptyDTO() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
+          .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
+      var feedbackGroupMessage = createFeedbackGroupMessage().build();
+      when(rocketChatService.postGroupMessage(feedbackGroupMessage))
+          .thenReturn(null);
+
+      messenger.postFeedbackGroupMessage(feedbackGroupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(
+          RC_FEEDBACK_GROUP_ID, any(), anyString());
+    });
+  }
+
+  @Test
+  void postFeedbackGroupMessage_Should_ReturnInternalServerErrorAndNotSendNotification_When_RocketChatServiceReturnsUnsuccessful() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
+          .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
+      var groupMessage = createGroupMessage().build();
+      when(rocketChatService.postGroupMessage(groupMessage)).thenReturn(
+          POST_MESSAGE_RESPONSE_DTO_UNSUCCESSFUL);
+      var feedbackGroupMessage = createFeedbackGroupMessage().build();
+
+      messenger.postFeedbackGroupMessage(feedbackGroupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewChatMessage(RC_FEEDBACK_GROUP_ID,
+          Optional.empty(), null);
+    });
+  }
+
+  @Test
+  void postFeedbackGroupMessage_Should_ReturnRocketChatPostMarkGroupAsReadExceptionAndNotSendFeedbackNotification_When_RocketChatMarkGroupAsReadFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
+          .thenReturn(GET_GROUP_INFO_DTO_FEEDBACK_CHAT);
+      var feedbackGroupMessage = createFeedbackGroupMessage().build();
+      when(rocketChatService.postGroupMessage(feedbackGroupMessage)).thenReturn(null);
+
+      messenger.postFeedbackGroupMessage(feedbackGroupMessage);
+
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(
+          RC_FEEDBACK_GROUP_ID, any(), anyString());
+    });
+  }
+
+  @Test
+  void postFeedbackGroupMessage_Should_ReturnCreatedAndSendFeedbackNotification_When_RocketChatServiceSucceeds()
       throws CustomCryptoException {
 
     when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
@@ -279,20 +288,22 @@ public class MessengerTest {
         eq(RC_FEEDBACK_GROUP_ID), any(), any());
   }
 
-  @Test(expected = BadRequestException.class)
-  public void postFeedbackGroupMessage_Should_ReturnBadRequestAndNotSendFeedbackNotification_When_GroupIdIsNoFeedbackChat() {
-    when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_GROUP_ID))
-        .thenReturn(GET_GROUP_INFO_DTO);
-    var groupMessage = createGroupMessage().build();
+  @Test
+  void postFeedbackGroupMessage_Should_ReturnBadRequestAndNotSendFeedbackNotification_When_GroupIdIsNoFeedbackChat() {
+    assertThrows(BadRequestException.class, () -> {
+      when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_GROUP_ID))
+          .thenReturn(GET_GROUP_INFO_DTO);
+      var groupMessage = createGroupMessage().build();
 
-    messenger.postFeedbackGroupMessage(groupMessage);
+      messenger.postFeedbackGroupMessage(groupMessage);
 
-    verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(RC_GROUP_ID, any(),
-        anyString());
+      verify(emailNotificationFacade, times(0)).sendEmailAboutNewFeedbackMessage(RC_GROUP_ID, any(),
+          anyString());
+    });
   }
 
   @Test
-  public void postGroupMessage_Should_sendLiveNotification_When_RocketChatServiceSucceeds()
+  void postGroupMessage_Should_sendLiveNotification_When_RocketChatServiceSucceeds()
       throws CustomCryptoException {
 
     var groupMessage = createGroupMessage().build();
@@ -306,7 +317,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postFeedbackGroupMessage_Should_sendLiveNotification_When_RocketChatServiceSucceeds()
+  void postFeedbackGroupMessage_Should_sendLiveNotification_When_RocketChatServiceSucceeds()
       throws CustomCryptoException {
 
     when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
@@ -321,7 +332,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postGroupMessage_Should_notSendLiveNotification_When_userIsRocketChatSystemUser()
+  void postGroupMessage_Should_notSendLiveNotification_When_userIsRocketChatSystemUser()
       throws CustomCryptoException {
 
     var systemFeedbackMessage = createFeedbackGroupMessage().rcUserId(RC_SYSTEM_USER_ID).build();
@@ -334,7 +345,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postGroupMessage_Should_deleteDraftMessage_When_RocketChatServiceSucceeds()
+  void postGroupMessage_Should_deleteDraftMessage_When_RocketChatServiceSucceeds()
       throws CustomCryptoException {
 
     var groupMessage = createGroupMessage().build();
@@ -347,7 +358,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postGroupMessage_Should_FireCreateMessageStatisticsEvent()
+  void postGroupMessage_Should_FireCreateMessageStatisticsEvent()
       throws CustomCryptoException {
 
     var groupMessage = createGroupMessage().build();
@@ -377,7 +388,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postFeedbackGroupMessage_Should_deleteDraftMessage_When_RocketChatServiceSucceeds()
+  void postFeedbackGroupMessage_Should_deleteDraftMessage_When_RocketChatServiceSucceeds()
       throws CustomCryptoException {
 
     when(rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_FEEDBACK_GROUP_ID))
@@ -392,7 +403,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void createVideoHintMessage_Should_triggerRocketChatPost_When_paramsAreGiven() {
+  void createVideoHintMessage_Should_triggerRocketChatPost_When_paramsAreGiven() {
     VideoCallMessageDTO callMessageDTO = new EasyRandom().nextObject(VideoCallMessageDTO.class);
     AliasMessageDTO aliasMessageDTO = new AliasMessageDTO().videoCallMessageDTO(callMessageDTO);
     when(rocketChatService.postAliasOnlyMessageAsSystemUser("rcGroupId",
@@ -405,7 +416,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void postAliasOnlyMessage_Should_triggerRocketChatPostWithCorrectMessageType_When_RcGroupIdIsGiven() {
+  void postAliasOnlyMessage_Should_triggerRocketChatPostWithCorrectMessageType_When_RcGroupIdIsGiven() {
     var aliasMessageDTO = new AliasMessageDTO().messageType(MessageType.FURTHER_STEPS);
     when(rocketChatService.postAliasOnlyMessageAsSystemUser(RC_GROUP_ID, aliasMessageDTO, null))
         .thenReturn(createSuccessfulMessageResult(null, RC_GROUP_ID));
@@ -419,7 +430,7 @@ public class MessengerTest {
   }
 
   @Test
-  public void createEvent_Should_sendNewMessageMail_When_messageTypeIsMasterkeyLost() {
+  void createEvent_Should_sendNewMessageMail_When_messageTypeIsMasterkeyLost() {
     var aliasMessageDTO = new AliasMessageDTO().messageType(MessageType.MASTER_KEY_LOST);
     when(rocketChatService.postAliasOnlyMessageAsSystemUser(RC_GROUP_ID, aliasMessageDTO, null))
         .thenReturn(createSuccessfulMessageResult(null, RC_GROUP_ID));
