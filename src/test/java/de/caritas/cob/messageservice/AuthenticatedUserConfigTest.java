@@ -1,21 +1,21 @@
 package de.caritas.cob.messageservice;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.caritas.cob.messageservice.config.AuthenticatedUserConfig;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
-public class AuthenticatedUserConfigTest {
+@ExtendWith(SpringExtension.class)
+class AuthenticatedUserConfigTest {
 
   @MockBean
   AuthenticatedUserConfig authenticatedUserConfig;
 
   @Test
-  public void getAuthenticatedUser_Should_ReturnNullWhenNoUserSessionActive() {
+  void getAuthenticatedUser_Should_ReturnNullWhenNoUserSessionActive() {
     assertNull(authenticatedUserConfig.getAuthenticatedUser());
   }
 }

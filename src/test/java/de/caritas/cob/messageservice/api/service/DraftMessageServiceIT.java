@@ -11,22 +11,19 @@ import de.caritas.cob.messageservice.MessageServiceApplication;
 import de.caritas.cob.messageservice.api.exception.CustomCryptoException;
 import de.caritas.cob.messageservice.api.helper.AuthenticatedUser;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessageServiceApplication.class)
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 @TestPropertySource(properties = "spring.profiles.active=testing")
-public class DraftMessageServiceIT {
+class DraftMessageServiceIT {
 
   @Autowired
   private DraftMessageService draftMessageService;
@@ -37,8 +34,8 @@ public class DraftMessageServiceIT {
   @MockBean
   private EncryptionService encryptionService;
 
-  @Before
-  public void setup() throws CustomCryptoException {
+  @BeforeEach
+  void setup() throws CustomCryptoException {
     doAnswer(encryptArgs -> encryptArgs.getArguments()[0]).when(encryptionService)
         .encrypt(anyString(), anyString());
     doAnswer(decryptArgs -> String.valueOf(decryptArgs.getArguments()[0])).when(encryptionService)
@@ -47,7 +44,7 @@ public class DraftMessageServiceIT {
   }
 
   @Test
-  public void saveAndDeleteDraftMessage_Should_produceNoError_When_executionIsInParallel()
+  void saveAndDeleteDraftMessage_Should_produceNoError_When_executionIsInParallel()
       throws InterruptedException {
     AtomicInteger errorCount = new AtomicInteger(0);
     int threadCount = 10;
@@ -66,7 +63,7 @@ public class DraftMessageServiceIT {
   }
 
   @Test
-  public void should_store_and_load_draft_messages() {
+  void should_store_and_load_draft_messages() {
     var rcGroupId = "gvkUGHASLÖD";
 
     draftMessageService.saveDraftMessage("message", rcGroupId, "e2e");

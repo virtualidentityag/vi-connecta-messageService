@@ -27,7 +27,7 @@ import de.caritas.cob.messageservice.api.service.LogService;
 import de.caritas.cob.messageservice.api.service.MessageMapper;
 import de.caritas.cob.messageservice.api.service.RocketChatService;
 import de.caritas.cob.messageservice.generated.api.controller.MessagesApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import java.util.Optional;
 import jakarta.validation.Valid;
@@ -41,8 +41,8 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller for message requests.
  */
 @RestController
+@Tag(name = "message-controller")
 @RequiredArgsConstructor
-@Api(tags = "message-controller")
 public class MessageController implements MessagesApi {
 
   private final @NonNull RocketChatService rocketChatService;
@@ -245,19 +245,19 @@ public class MessageController implements MessagesApi {
     var aliasArgs = aliasOnlyMessageDTO.getArgs();
 
     if (type.equals(MessageType.USER_MUTED) || type.equals(MessageType.USER_UNMUTED)) {
-      var message = String.format("Message type (%s) is protected.", type);
+      var message = "Message type (%s) is protected.".formatted(type);
       throw new BadRequestException(message, LogService::logBadRequest);
     }
 
     if (nonNull(aliasArgs) && type != MessageType.REASSIGN_CONSULTANT) {
-      var message = String.format("Alias args are not supported by type (%s).", type);
+      var message = "Alias args are not supported by type (%s).".formatted(type);
       throw new BadRequestException(message, LogService::logBadRequest);
     }
 
     if (type == MessageType.REASSIGN_CONSULTANT && hasMissingMandatoryAliasArgForReassignment(
         aliasArgs)) {
       var errorFormat = "toConsultantId is required during reassignment creation (%s).";
-      var message = String.format(errorFormat, MessageType.REASSIGN_CONSULTANT);
+      var message = errorFormat.formatted(MessageType.REASSIGN_CONSULTANT);
       throw new BadRequestException(message, LogService::logBadRequest);
     }
 
@@ -290,7 +290,7 @@ public class MessageController implements MessagesApi {
       AliasArgs aliasArgs) {
     var reassignStatus = aliasArgs.getStatus();
     if (reassignStatus == ReassignStatus.REQUESTED) {
-      var message = String.format("Updating to status (%s) is not supported.", reassignStatus);
+      var message = "Updating to status (%s) is not supported.".formatted(reassignStatus);
       throw new BadRequestException(message, LogService::logBadRequest);
     }
 

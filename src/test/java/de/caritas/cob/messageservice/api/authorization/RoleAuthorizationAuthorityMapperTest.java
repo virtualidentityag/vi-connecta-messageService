@@ -7,17 +7,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-public class RoleAuthorizationAuthorityMapperTest {
+class RoleAuthorizationAuthorityMapperTest {
 
   private final RoleAuthorizationAuthorityMapper roleAuthorizationAuthorityMapper =
       new RoleAuthorizationAuthorityMapper();
 
   @Test
-  public void mapAuthorities_Should_returnGrantedConsultantAuthority_When_authorityConsultant() {
+  void mapAuthorities_Should_returnGrantedConsultantAuthority_When_authorityConsultant() {
     List<GrantedAuthority> grantedAuthorities = Stream.of("consultant")
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
@@ -32,7 +32,7 @@ public class RoleAuthorizationAuthorityMapperTest {
   }
 
   @Test
-  public void mapAuthorities_Should_returnGrantedTechnicalAuthority_When_authoritiesContainsTechnical() {
+  void mapAuthorities_Should_returnGrantedTechnicalAuthority_When_authoritiesContainsTechnical() {
     List<GrantedAuthority> grantedAuthorities = Stream.of("a", "v", "technical", "c")
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class RoleAuthorizationAuthorityMapperTest {
   }
 
   @Test
-  public void mapAuthorities_Should_returnEmptyCollection_When_authorityIsEmpty() {
+  void mapAuthorities_Should_returnEmptyCollection_When_authorityIsEmpty() {
     Collection<? extends GrantedAuthority> mappedAuthorities = this.roleAuthorizationAuthorityMapper
         .mapAuthorities(emptyList());
 
@@ -56,7 +56,7 @@ public class RoleAuthorizationAuthorityMapperTest {
   }
 
   @Test
-  public void mapAuthorities_Should_returnEmptyCollection_When_authoritiesAreNotProvided() {
+  void mapAuthorities_Should_returnEmptyCollection_When_authoritiesAreNotProvided() {
     List<GrantedAuthority> grantedAuthorities = Stream.of("a", "v", "b", "c")
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
