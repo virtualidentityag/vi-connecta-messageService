@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.13</version>
+    <version>3.3.8</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -31,13 +31,14 @@
     <openapi.generator.maven.version>6.4.0</openapi.generator.maven.version>
     <liquibase-core.version>4.23.2</liquibase-core.version>
     <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
+    <spring-security.version>6.3.4</spring-security.version>
     <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
-    <spring-security-test.version>6.0.5</spring-security-test.version>
+    <spring-security-test.version>6.0.8</spring-security-test.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-collections4.version>4.4</commons-collections4.version>
-    <commons-codec.version>1.15</commons-codec.version>
+    <commons-codec.version>1.17.2</commons-codec.version>
     <spring-security-oauth2-test-webmvc-addons.version>3.0.1</spring-security-oauth2-test-webmvc-addons.version>
   </properties>
 
@@ -66,17 +67,14 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>${spring-security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${spring-security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring-security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -85,11 +83,6 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>8.0.0.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
@@ -143,7 +136,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.4.0</version>
+      <version>2.6.0</version>
     </dependency>
 
     <!-- Keycloak dependencies -->
@@ -163,9 +156,8 @@
       <version>${keycloak.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.1.1</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
     </dependency>
 
     <!-- Lombok dependencies -->
@@ -179,7 +171,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang3.version}</version>
     </dependency>
 
     <dependency>
@@ -199,7 +190,6 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>${commons-codec.version}</version>
     </dependency>
 
     <!-- Liquibase -->
@@ -212,7 +202,6 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>${liquibase-core.version}</version>
     </dependency>
 
     <dependency>
@@ -223,22 +212,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-to-slf4j</artifactId>
-      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
-      <version>2.0</version>
     </dependency>
 
     <dependency>
@@ -249,7 +234,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
-      <version>${spring-security-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -275,6 +259,12 @@
       <artifactId>concurrent-junit</artifactId>
       <version>1.0.2</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.fridujo</groupId>
@@ -442,7 +432,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>validate</id>
@@ -466,9 +456,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>17</source>
-          <target>17</target>
           <compilerArgs>--enable-preview</compilerArgs>
+          <release>${java.version}</release>
         </configuration>
       </plugin>
       <plugin>
@@ -507,6 +496,24 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.openrewrite.maven</groupId>
+        <artifactId>rewrite-maven-plugin</artifactId>
+        <version>6.0.4</version>
+        <configuration>
+          <exportDatatables>true</exportDatatables>
+          <activeRecipes>
+            <recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_3</recipe>
+          </activeRecipes>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
+            <version>6.0.2</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>

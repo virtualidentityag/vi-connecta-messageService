@@ -9,8 +9,7 @@ import de.caritas.cob.messageservice.api.model.AliasMessageDTO;
 import de.caritas.cob.messageservice.api.model.AttachmentDTO;
 import de.caritas.cob.messageservice.api.model.FileDTO;
 import de.caritas.cob.messageservice.api.model.jsondeserializer.AliasJsonDeserializer;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,50 +27,49 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "Messages")
+@Schema(name = "Messages")
 public class MessagesDTO {
 
-  @ApiModelProperty(required = true, example = "M73fE4WhYF4peYB3s", position = 0)
+  @Schema(required = true, example = "M73fE4WhYF4peYB3s")
   private String _id;
 
-  @ApiModelProperty(required = false, example = "%7B%0A%20%20%22message%22%3A%20", position = 1)
+  @Schema(required = false, example = "%7B%0A%20%20%22message%22%3A%20")
   @JsonDeserialize(using = AliasJsonDeserializer.class)
   private AliasMessageDTO alias;
 
-  @ApiModelProperty(required = true, example = "fR2Rz7dmWmHdXE8uz", position = 2)
+  @Schema(required = true, example = "fR2Rz7dmWmHdXE8uz")
   private String rid;
 
-  @ApiModelProperty(required = true, example = "Lorem ipsum dolor sit amet, consetetur...",
-      position = 3)
+  @Schema(required = true, example = "Lorem ipsum dolor sit amet, consetetur...")
   private String msg;
 
-  @ApiModelProperty(required = true, example = "2018-11-15T09:33:00.057Z", position = 4)
+  @Schema(required = true, example = "2018-11-15T09:33:00.057Z")
   private String ts;
 
-  @ApiModelProperty(required = true, position = 5)
+  @Schema(required = true)
   private UserDTO u;
 
-  @ApiModelProperty(required = true, position = 6)
+  @Schema(required = true)
   private boolean unread;
 
   @JsonIgnore
-  @ApiModelProperty(required = true, position = 7)
+  @Schema(required = true)
   private String[] mentions;
 
   @JsonIgnore
-  @ApiModelProperty(required = true, position = 8)
+  @Schema(required = true)
   private String[] channels;
 
-  @ApiModelProperty(required = true, example = "2018-11-15T09:33:00.067Z", position = 9)
+  @Schema(required = true, example = "2018-11-15T09:33:00.067Z")
   private String _updatedAt;
 
-  @ApiModelProperty(required = false, position = 10)
+  @Schema(required = false)
   private AttachmentDTO[] attachments;
 
-  @ApiModelProperty(required = false, position = 11)
+  @Schema(required = false)
   private FileDTO file;
 
-  @ApiModelProperty
+  @Schema
   private String t;
 
   @JsonIgnore

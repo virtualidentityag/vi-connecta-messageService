@@ -27,9 +27,8 @@ import de.caritas.cob.messageservice.api.service.RocketChatService;
 import jakarta.servlet.http.Cookie;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jeasy.random.EasyRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,14 +36,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
 @ActiveProfiles("testing")
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MessageControllerAuthorizationTestIT {
+class MessageControllerAuthorizationTestIT {
 
   protected final static String PATH_GET_MESSAGE_STREAM = "/messages";
   protected final static String PATH_POST_CREATE_MESSAGE = "/messages/new";
@@ -75,15 +72,15 @@ public class MessageControllerAuthorizationTestIT {
   private String messageId;
   private AliasArgs aliasArgs;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     csrfCookie = new Cookie(CSRF_COOKIE, CSRF_VALUE);
     messageId = null;
     aliasArgs = null;
   }
 
   @Test
-  public void findMessages_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
+  void findMessages_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(get(PATH_GET_MESSAGE_STREAM).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -95,7 +92,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.TECHNICAL_DEFAULT})
-  public void findMessages_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserOrConsultantDefaultAuthority()
+  void findMessages_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserOrConsultantDefaultAuthority()
       throws Exception {
 
     mvc.perform(get(PATH_GET_MESSAGE_STREAM).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -107,7 +104,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.CONSULTANT_DEFAULT, AuthorityValue.USER_DEFAULT})
-  public void findMessages_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
+  void findMessages_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
       throws Exception {
 
     mvc.perform(get(PATH_GET_MESSAGE_STREAM).contentType(MediaType.APPLICATION_JSON)
@@ -117,7 +114,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void createMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
+  void createMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_MESSAGE).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -130,7 +127,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser
-  public void createMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserOrConsultantOrTechnicalDefaultAuthority()
+  void createMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserOrConsultantOrTechnicalDefaultAuthority()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_MESSAGE).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -144,7 +141,7 @@ public class MessageControllerAuthorizationTestIT {
   @Test
   @WithMockUser(authorities = {AuthorityValue.CONSULTANT_DEFAULT, AuthorityValue.USER_DEFAULT,
       AuthorityValue.TECHNICAL_DEFAULT})
-  public void createMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
+  void createMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_MESSAGE).contentType(MediaType.APPLICATION_JSON)
@@ -155,7 +152,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void updateKey_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
+  void updateKey_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(post(PATH_POST_UPDATE_KEY).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -167,7 +164,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.CONSULTANT_DEFAULT, AuthorityValue.USER_DEFAULT})
-  public void updateKey_Should_ReturnForbiddenAndCallNoMethods_WhenNoTechnicalDefaultAuthority()
+  void updateKey_Should_ReturnForbiddenAndCallNoMethods_WhenNoTechnicalDefaultAuthority()
       throws Exception {
 
     mvc.perform(post(PATH_POST_UPDATE_KEY).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -179,7 +176,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.TECHNICAL_DEFAULT})
-  public void updateKey_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens() throws Exception {
+  void updateKey_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens() throws Exception {
 
     mvc.perform(post(PATH_POST_UPDATE_KEY).contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
@@ -188,7 +185,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void forwardMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
+  void forwardMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -201,7 +198,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser
-  public void forwardMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserFeedbackAuthority()
+  void forwardMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserFeedbackAuthority()
       throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).cookie(csrfCookie).header(CSRF_HEADER, CSRF_VALUE)
@@ -214,7 +211,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USE_FEEDBACK})
-  public void forwardMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
+  void forwardMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
       throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).contentType(MediaType.APPLICATION_JSON)
@@ -225,7 +222,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void createFeedbackMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
+  void createFeedbackMessage_Should_ReturnUnauthorizedAndCallNoMethods_WhenNoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(
@@ -239,7 +236,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser
-  public void createFeedbackMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserFeedbackAuthority()
+  void createFeedbackMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoUserFeedbackAuthority()
       throws Exception {
 
     mvc.perform(
@@ -253,7 +250,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USE_FEEDBACK})
-  public void createFeedbackMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
+  void createFeedbackMessage_Should_ReturnForbiddenAndCallNoMethods_WhenNoCsrfTokens()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_FEEDBACK_MESSAGE).contentType(MediaType.APPLICATION_JSON)
@@ -264,7 +261,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void createVideoHintMessage_Should_ReturnUnauthorizedAndCallNoMethods_When_NoKeycloakAuthorization()
+  void createVideoHintMessage_Should_ReturnUnauthorizedAndCallNoMethods_When_NoKeycloakAuthorization()
       throws Exception {
 
     mvc.perform(
@@ -281,7 +278,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser
-  public void createVideoHintMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoUserOrConsultantAuthority()
+  void createVideoHintMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoUserOrConsultantAuthority()
       throws Exception {
 
     mvc.perform(
@@ -298,7 +295,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USER_DEFAULT})
-  public void createVideoHintMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoCsrfTokens()
+  void createVideoHintMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoCsrfTokens()
       throws Exception {
 
     mvc.perform(
@@ -313,7 +310,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USER_DEFAULT})
-  public void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_UserAuthority()
+  void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_UserAuthority()
       throws Exception {
 
     var videoCallMessageDTO = easyRandom.nextObject(VideoCallMessageDTO.class);
@@ -333,7 +330,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.CONSULTANT_DEFAULT})
-  public void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_ConsultantAuthority()
+  void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_ConsultantAuthority()
       throws Exception {
 
     var videoCallMessageDTO = easyRandom.nextObject(VideoCallMessageDTO.class);
@@ -352,7 +349,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void saveAliasOnlyMessage_Should_ReturnUnauthorizedAndCallNoMethods_When_NoKeycloakAuthorization()
+  void saveAliasOnlyMessage_Should_ReturnUnauthorizedAndCallNoMethods_When_NoKeycloakAuthorization()
       throws Exception {
     var aliasOnlyMessageDTO = createAliasOnlyMessageWithoutProtectedType();
 
@@ -371,7 +368,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser
-  public void saveAliasOnlyMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoUserDefaultAuthority()
+  void saveAliasOnlyMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoUserDefaultAuthority()
       throws Exception {
     var aliasOnlyMessageDTO = createAliasOnlyMessageWithoutProtectedType();
 
@@ -390,7 +387,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USER_DEFAULT})
-  public void saveAliasOnlyMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoCsrfTokens()
+  void saveAliasOnlyMessage_Should_ReturnForbiddenAndCallNoMethods_When_NoCsrfTokens()
       throws Exception {
     var aliasOnlyMessageDTO = createAliasOnlyMessageWithoutProtectedType();
 
@@ -407,7 +404,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.USER_DEFAULT})
-  public void saveAliasOnlyMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_UserDefaultAuthority()
+  void saveAliasOnlyMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_UserDefaultAuthority()
       throws Exception {
     var aliasOnlyMessageDTO = createAliasOnlyMessageWithoutProtectedType();
 
@@ -426,7 +423,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.CONSULTANT_DEFAULT)
-  public void saveAliasOnlyMessageShouldReturnCreatedWhenConsultantDefaultAuthority()
+  void saveAliasOnlyMessageShouldReturnCreatedWhenConsultantDefaultAuthority()
       throws Exception {
     var aliasOnlyMessageDTO = createAliasOnlyMessageWithoutProtectedType();
 
@@ -443,7 +440,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.ANONYMOUS_DEFAULT})
-  public void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_AnonyousAuthority()
+  void createVideoHintMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_AnonyousAuthority()
       throws Exception {
 
     var videoCallMessageDTO = easyRandom.nextObject(VideoCallMessageDTO.class);
@@ -463,7 +460,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.ANONYMOUS_DEFAULT})
-  public void sendNewMessage_Should_ReturnCreated_When_AnonyousAuthority()
+  void sendNewMessage_Should_ReturnCreated_When_AnonyousAuthority()
       throws Exception {
 
     var messageDTO = easyRandom.nextObject(MessageDTO.class);
@@ -482,7 +479,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.ANONYMOUS_DEFAULT})
-  public void findMessages_Should_ReturnNoContent_When_AnonymousAuthority()
+  void findMessages_Should_ReturnNoContent_When_AnonymousAuthority()
       throws Exception {
     mvc.perform(get(PATH_GET_MESSAGE_STREAM)
             .cookie(csrfCookie)
@@ -497,7 +494,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = {AuthorityValue.TECHNICAL_DEFAULT})
-  public void saveAliasOnlyMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_TechnicalDefaultAuthority()
+  void saveAliasOnlyMessage_Should_ReturnCreatedAndCallPostGroupMessageFacade_When_TechnicalDefaultAuthority()
       throws Exception {
     var aliasOnlyMessageDTO = givenAValidAliasOnlyMessageDTO();
 
@@ -515,7 +512,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void patchMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
+  void patchMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
     givenAPatchSupportedReassignArg();
     givenAValidMessageId();
 
@@ -537,7 +534,7 @@ public class MessageControllerAuthorizationTestIT {
       AuthorityValue.TECHNICAL_DEFAULT,
       AuthorityValue.USE_FEEDBACK
   })
-  public void patchMessageShouldReturnForbiddenAndCallNoMethodsWhenNoUserDefaultAuthority()
+  void patchMessageShouldReturnForbiddenAndCallNoMethodsWhenNoUserDefaultAuthority()
       throws Exception {
     givenAPatchSupportedReassignArg();
     givenAValidMessageId();
@@ -555,7 +552,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  public void patchMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
+  void patchMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
     givenAPatchSupportedReassignArg();
     givenAValidMessageId();
 
@@ -570,7 +567,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void deleteMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
+  void deleteMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
     givenAValidMessageId();
 
     mvc.perform(
@@ -587,7 +584,7 @@ public class MessageControllerAuthorizationTestIT {
       AuthorityValue.TECHNICAL_DEFAULT,
       AuthorityValue.USE_FEEDBACK
   })
-  public void deleteMessageShouldReturnForbiddenAndCallNoMethodsWhenNoUserDefaultAuthority()
+  void deleteMessageShouldReturnForbiddenAndCallNoMethodsWhenNoUserDefaultAuthority()
       throws Exception {
     givenAValidMessageId();
 
@@ -602,7 +599,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  public void deleteMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
+  void deleteMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
     givenAValidMessageId();
 
     mvc.perform(
@@ -614,7 +611,7 @@ public class MessageControllerAuthorizationTestIT {
   }
 
   @Test
-  public void findMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
+  void findMessageShouldReturnUnauthorizedWhenNoKeycloakAuthorization() throws Exception {
     givenAValidMessageId();
 
     mvc.perform(
@@ -631,7 +628,7 @@ public class MessageControllerAuthorizationTestIT {
       AuthorityValue.TECHNICAL_DEFAULT,
       AuthorityValue.USE_FEEDBACK
   })
-  public void findMessageShouldReturnForbiddenAndCallNoMethodsWhenNoSupportedAuthority()
+  void findMessageShouldReturnForbiddenAndCallNoMethodsWhenNoSupportedAuthority()
       throws Exception {
     givenAValidMessageId();
 
@@ -646,7 +643,7 @@ public class MessageControllerAuthorizationTestIT {
 
   @Test
   @WithMockUser(authorities = AuthorityValue.USER_DEFAULT)
-  public void findMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
+  void findMessageShouldReturnForbiddenAndCallNoMethodsWhenNoCsrfToken() throws Exception {
     givenAValidMessageId();
 
     mvc.perform(
