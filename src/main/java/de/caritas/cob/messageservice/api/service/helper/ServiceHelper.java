@@ -57,7 +57,7 @@ public class ServiceHelper {
   private HttpHeaders addCsrfHeaders(HttpHeaders httpHeaders) {
     String csrfToken = UUID.randomUUID().toString();
 
-    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     httpHeaders.add("Cookie", csrfCookieProperty + "=" + csrfToken);
     httpHeaders.add(csrfHeaderProperty, csrfToken);
 

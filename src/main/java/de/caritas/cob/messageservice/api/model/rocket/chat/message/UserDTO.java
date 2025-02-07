@@ -2,8 +2,7 @@ package de.caritas.cob.messageservice.api.model.rocket.chat.message;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import de.caritas.cob.messageservice.api.model.jsondeserializer.DecodeUsernameJsonDeserializer;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,16 +19,16 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "U")
+@Schema(name = "U")
 public class UserDTO {
 
-  @ApiModelProperty(required = true, example = "vppRFqjrzTsTZ6iEn", position = 0)
+  @Schema(required = true, example = "vppRFqjrzTsTZ6iEn")
   private String _id;
 
-  @ApiModelProperty(required = true, example = "test", position = 1)
+  @Schema(required = true, example = "test")
   @JsonDeserialize(using = DecodeUsernameJsonDeserializer.class)
   private String username;
 
-  @ApiModelProperty(required = true, example = "Mustermax", position = 3)
+  @Schema(required = true, example = "Mustermax")
   private String name;
 }

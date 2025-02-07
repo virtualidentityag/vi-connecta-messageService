@@ -6,31 +6,19 @@ import static de.caritas.cob.messageservice.api.authorization.Authority.Authorit
 import static de.caritas.cob.messageservice.api.authorization.Authority.AuthorityValue.USER_DEFAULT;
 import static de.caritas.cob.messageservice.api.authorization.Authority.AuthorityValue.USE_FEEDBACK;
 
-import de.caritas.cob.messageservice.api.authorization.RoleAuthorizationAuthorityMapper;
 import de.caritas.cob.messageservice.config.security.AuthorisationService;
 import de.caritas.cob.messageservice.config.security.JwtAuthConverter;
 import de.caritas.cob.messageservice.config.security.JwtAuthConverterProperties;
 import de.caritas.cob.messageservice.filter.StatelessCsrfFilter;
-import org.keycloak.adapters.KeycloakConfigResolver;
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
-import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory;
-import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticatedActionsFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcessingFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakPreAuthActionsFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakSecurityContextRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -38,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Provides the Keycloak/Spring Security configuration.
  */
+@Configuration
 @KeycloakConfiguration
 public class SecurityConfig implements WebMvcConfigurer {
 
@@ -74,13 +63,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     @SuppressWarnings("java:S1075") // URIs should not be hardcoded
     final var SINGLE_MESSAGE_PATH = "/messages/{messageId:[0-9A-Za-z]{17}}";
 
-    var httpSecurity = http.csrf().disable()
+    var httpSecurity = http.csrf(csrf -> csrf.disable())
         .addFilterBefore(new StatelessCsrfFilter(csrfCookieProperty, csrfHeaderProperty, csrfWhitelistHeaderProperty),
             CsrfFilter.class);
 
 
-    httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and().authorizeRequests()
+    httpSecurity.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(requests -> requests
         .requestMatchers(SecurityConfig.WHITE_LIST).permitAll()
         .requestMatchers("/messages/key")
         .hasAuthority(TECHNICAL_DEFAULT)
@@ -101,9 +89,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         .requestMatchers("/messages/aliasWithContent/new")
         .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT)
         .anyRequest()
-        .denyAll();
+        .denyAll());
 
-    httpSecurity.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthConverter());
+    httpSecurity.oauth2ResourceServer(server -> server.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter())));
     return httpSecurity.build();
   }
 

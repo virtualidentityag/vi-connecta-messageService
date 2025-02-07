@@ -35,7 +35,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -74,23 +73,18 @@ import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Arrays;
 import org.jeasy.random.EasyRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(MessageController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class MessageControllerTestIT {
+class MessageControllerTestIT {
 
   private static final EasyRandom easyRandom = new EasyRandom();
 
@@ -157,7 +151,7 @@ public class MessageControllerTestIT {
    */
 
   @Test
-  public void createMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
+  void createMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -167,7 +161,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing() throws Exception {
+  void createMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing() throws Exception {
 
     mvc.perform(
             post(PATH_POST_CREATE_MESSAGE).content(VALID_MESSAGE_REQUEST_BODY_WITHOUT_NOTIFICATION)
@@ -176,7 +170,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void getMessageStream_Should_ReturnBadRequest_WhenHeaderValuesAreMissing()
+  void getMessageStream_Should_ReturnBadRequest_WhenHeaderValuesAreMissing()
       throws Exception {
 
     mvc.perform(get(PATH_GET_MESSAGE_STREAM).param(QUERY_PARAM_OFFSET, RC_OFFSET)
@@ -185,7 +179,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void getMessageStream_Should_ReturnBadRequest_WhenRequestParamsAreMissing()
+  void getMessageStream_Should_ReturnBadRequest_WhenRequestParamsAreMissing()
       throws Exception {
 
     mvc.perform(get(PATH_GET_MESSAGE_STREAM).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -194,7 +188,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void forwardMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
+  void forwardMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
       throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -204,7 +198,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void forwardMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing() throws Exception {
+  void forwardMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing() throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).content(VALID_FORWARD_MESSAGE_REQUEST_BODY)
             .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
@@ -212,7 +206,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createFeedbackMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
+  void createFeedbackMessage_Should_ReturnBadRequest_WhenProvidedWithInvalidRequestBody()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_FEEDBACK_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -223,7 +217,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createFeedbackMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing()
+  void createFeedbackMessage_Should_ReturnBadRequest_WhenHeaderValuesAreMissing()
       throws Exception {
 
     mvc.perform(
@@ -238,7 +232,7 @@ public class MessageControllerTestIT {
    */
 
   @Test
-  public void getMessageStream_Should_ReturnOk_WhenProvidedWithValidRequestValues()
+  void getMessageStream_Should_ReturnOk_WhenProvidedWithValidRequestValues()
       throws Exception {
 
     List<MessagesDTO> messages = new ArrayList<>();
@@ -260,7 +254,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
+  void createMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -273,7 +267,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void forwardMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
+  void forwardMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
       throws Exception {
 
     mvc.perform(post(PATH_POST_FORWARD_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -283,7 +277,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createFeedbackMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
+  void createFeedbackMessage_Should_ReturnCreated_WhenProvidedWithValidRequestValuesAndSuccessfulPostGroupMessageFacadeCall()
       throws Exception {
 
     mvc.perform(post(PATH_POST_CREATE_FEEDBACK_MESSAGE).header(QUERY_PARAM_RC_TOKEN, RC_TOKEN)
@@ -300,7 +294,7 @@ public class MessageControllerTestIT {
    * 204 - No Content test
    */
   @Test
-  public void getMessageStream_Should_ReturnNoContent_WhenProvidedWithValidRequestValuesAndMessageStreamIsEmpty()
+  void getMessageStream_Should_ReturnNoContent_WhenProvidedWithValidRequestValuesAndMessageStreamIsEmpty()
       throws Exception {
 
     when(rocketChatService.getGroupMessages(anyString(), anyString(),
@@ -319,7 +313,7 @@ public class MessageControllerTestIT {
    * 500 - Internal Server Error test
    */
   @Test
-  public void createMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
+  void createMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
       throws Exception {
 
     doThrow(new InternalServerErrorException())
@@ -335,7 +329,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void forwardMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
+  void forwardMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
       throws Exception {
 
     doThrow(new InternalServerErrorException())
@@ -351,7 +345,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createFeedbackMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
+  void createFeedbackMessage_Should_ReturnInternalServerError_WhenProvidedWithValidRequestValuesAndPostGroupMessageFacadeResponseIsEmpty()
       throws Exception {
 
     doThrow(new InternalServerErrorException()).when(messenger)
@@ -372,7 +366,7 @@ public class MessageControllerTestIT {
    * 202 - Accepted Test
    */
   @Test
-  public void updateKey_Should_ReturnAccepted_WhenProvidedWithNewKey() throws Exception {
+  void updateKey_Should_ReturnAccepted_WhenProvidedWithNewKey() throws Exception {
 
     when(encryptionService.getMasterKey()).thenReturn(MASTER_KEY_1);
 
@@ -385,7 +379,7 @@ public class MessageControllerTestIT {
    * 409 - Conflict test
    */
   @Test
-  public void updateKey_Should_ReturnConflict_WhenProvidedWithSameKey() throws Exception {
+  void updateKey_Should_ReturnConflict_WhenProvidedWithSameKey() throws Exception {
 
     when(encryptionService.getMasterKey()).thenReturn(MASTER_KEY_1);
 
@@ -404,7 +398,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createMessage_Should_ReturnInternalServerError_When_InternalServerErrorIsThrown()
+  void createMessage_Should_ReturnInternalServerError_When_InternalServerErrorIsThrown()
       throws Exception {
 
     doThrow(new InternalServerErrorException()).when(messenger)
@@ -418,14 +412,14 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveDraftMessage_Should_returnBadRequest_When_rcGroupIdAndMessageIsMissing()
+  void saveDraftMessage_Should_returnBadRequest_When_rcGroupIdAndMessageIsMissing()
       throws Exception {
     mvc.perform(post(PATH_DRAFT_MESSAGE).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
   @Test
-  public void saveDraftMessage_Should_returnBadRequest_When_rcGroupIdIsMissing() throws Exception {
+  void saveDraftMessage_Should_returnBadRequest_When_rcGroupIdIsMissing() throws Exception {
     mvc.perform(post(PATH_DRAFT_MESSAGE)
             .content("message")
             .contentType(MediaType.APPLICATION_JSON))
@@ -433,7 +427,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveDraftMessage_Should_returnBadRequest_When_messageIsMissing() throws Exception {
+  void saveDraftMessage_Should_returnBadRequest_When_messageIsMissing() throws Exception {
     mvc.perform(post(PATH_DRAFT_MESSAGE)
             .header(QUERY_PARAM_RC_GROUP_ID, RC_GROUP_ID)
             .contentType(MediaType.APPLICATION_JSON))
@@ -441,7 +435,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveDraftMessage_Should_returnCreated_When_messageIsNew() throws Exception {
+  void saveDraftMessage_Should_returnCreated_When_messageIsNew() throws Exception {
     var draftMessageDTO = new DraftMessageDTO();
     draftMessageDTO.setMessage("message");
     when(this.draftMessageService.saveDraftMessage(any(), any(), any())).thenReturn(
@@ -455,7 +449,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveDraftMessage_Should_returnOk_When_messageIsOverwritten() throws Exception {
+  void saveDraftMessage_Should_returnOk_When_messageIsOverwritten() throws Exception {
     when(this.draftMessageService.saveDraftMessage(any(), any(), any())).thenReturn(
         OVERWRITTEN_MESSAGE);
     var draftMessage = new DraftMessageDTO();
@@ -469,13 +463,13 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void findDraftMessage_Should_returnBadRequest_When_rcGroupIdIsMissing() throws Exception {
+  void findDraftMessage_Should_returnBadRequest_When_rcGroupIdIsMissing() throws Exception {
     mvc.perform(get(PATH_DRAFT_MESSAGE).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
   @Test
-  public void findDraftMessage_Should_returnDraftMessage_When_messageExists() throws Exception {
+  void findDraftMessage_Should_returnDraftMessage_When_messageExists() throws Exception {
     var draftMessageDTO = new DraftMessageDTO();
     draftMessageDTO.setMessage("message");
     var draftMessage = Optional.of(draftMessageDTO);
@@ -494,7 +488,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void findDraftMessage_Should_returnNoContent_When_noDraftMessageExists() throws Exception {
+  void findDraftMessage_Should_returnNoContent_When_noDraftMessageExists() throws Exception {
     mvc.perform(get(PATH_DRAFT_MESSAGE)
             .header(QUERY_PARAM_RC_GROUP_ID, RC_GROUP_ID)
             .contentType(MediaType.APPLICATION_JSON))
@@ -502,7 +496,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createVideoHintMessage_Should_ReturnBadRequest_When_rcGroupIdIsMissing()
+  void createVideoHintMessage_Should_ReturnBadRequest_When_rcGroupIdIsMissing()
       throws Exception {
 
     VideoCallMessageDTO videoCallMessageDTO =
@@ -519,7 +513,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createVideoHintMessage_Should_ReturnBadRequest_When_videoCallMessageDTOIsMissing()
+  void createVideoHintMessage_Should_ReturnBadRequest_When_videoCallMessageDTOIsMissing()
       throws Exception {
 
     mvc.perform(
@@ -533,7 +527,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createVideoHintMessage_Should_ReturnBadRequest_When_videoCallMessageDTOIsEmpty()
+  void createVideoHintMessage_Should_ReturnBadRequest_When_videoCallMessageDTOIsEmpty()
       throws Exception {
 
     mvc.perform(
@@ -548,7 +542,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void createVideoHintMessage_Should_ReturnCreated_When_paramsAreValid()
+  void createVideoHintMessage_Should_ReturnCreated_When_paramsAreValid()
       throws Exception {
 
     VideoCallMessageDTO videoCallMessageDTO =
@@ -566,7 +560,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveAliasOnlyMessage_Should_ReturnBadRequest_When_rcGroupIdIsMissing()
+  void saveAliasOnlyMessage_Should_ReturnBadRequest_When_rcGroupIdIsMissing()
       throws Exception {
     AliasOnlyMessageDTO aliasOnlyMessageDTO =
         easyRandom.nextObject(AliasOnlyMessageDTO.class);
@@ -582,7 +576,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveAliasOnlyMessage_Should_ReturnBadRequest_When_AliasOnlyMessageDtoIsMissing()
+  void saveAliasOnlyMessage_Should_ReturnBadRequest_When_AliasOnlyMessageDtoIsMissing()
       throws Exception {
     mvc.perform(
             post(PATH_POST_CREATE_ALIAS_ONLY_MESSAGE)
@@ -595,7 +589,7 @@ public class MessageControllerTestIT {
   }
 
   @Test
-  public void saveAliasOnlyMessage_Should_ReturnCreated_When_paramsAreValid()
+  void saveAliasOnlyMessage_Should_ReturnCreated_When_paramsAreValid()
       throws Exception {
     var aliasOnlyMessageDTO = easyRandom.nextObject(AliasOnlyMessageDTO.class);
     aliasOnlyMessageDTO.setMessageType(MessageType.FORWARD);

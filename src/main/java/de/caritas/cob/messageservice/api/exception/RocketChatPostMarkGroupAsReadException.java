@@ -1,7 +1,10 @@
 package de.caritas.cob.messageservice.api.exception;
 
+import java.io.Serial;
+
 public class RocketChatPostMarkGroupAsReadException extends RuntimeException {
 
+  @Serial
   private static final long serialVersionUID = -5666387091852981692L;
 
   /**
