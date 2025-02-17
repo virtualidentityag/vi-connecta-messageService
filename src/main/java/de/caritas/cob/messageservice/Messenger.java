@@ -259,7 +259,7 @@ public class Messenger {
     }
 
     if (!message.isA(MessageType.REASSIGN_CONSULTANT)) {
-      var errorMessage = String.format("Message (%s) is not a reassignment.", messageId);
+      var errorMessage = "Message (%s) is not a reassignment.".formatted(messageId);
       throw new BadRequestException(errorMessage, LogService::logBadRequest);
     }
 

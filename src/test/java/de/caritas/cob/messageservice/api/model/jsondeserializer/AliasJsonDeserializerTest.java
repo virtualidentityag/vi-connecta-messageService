@@ -12,9 +12,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,13 +30,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.ClassUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AliasJsonDeserializerTest {
+@ExtendWith(MockitoExtension.class)
+class AliasJsonDeserializerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final UserHelper userHelper = new UserHelper();
@@ -45,12 +45,12 @@ public class AliasJsonDeserializerTest {
   private final String encodedUsername = userHelper.encodeUsername(decodedUsername);
 
   @Test
-  public void aliasJsonDeserializer_Schould_haveNoArgsConstructor() {
+  void aliasJsonDeserializer_Schould_haveNoArgsConstructor() {
     assertTrue(ClassUtils.hasConstructor(AliasJsonDeserializer.class));
   }
 
   @Test
-  public void deserialize_Schould_convertAliasWithEncodedUsernameToForwardMessageDTO()
+  void deserialize_Schould_convertAliasWithEncodedUsernameToForwardMessageDTO()
       throws IOException {
     ForwardMessageDTO result =
         deserializeOldAliasJson(MESSAGE_FORWARD_ALIAS_JSON_WITH_ENCODED_USERNAME)
@@ -61,7 +61,7 @@ public class AliasJsonDeserializerTest {
   }
 
   @Test
-  public void deserialize_Schould_convertAliasWithDecodedUsernameToForwardMessageDTO()
+  void deserialize_Schould_convertAliasWithDecodedUsernameToForwardMessageDTO()
       throws IOException {
     ForwardMessageDTO result =
         deserializeOldAliasJson(MESSAGE_FORWARD_ALIAS_JSON_WITH_DECODED_USERNAME)
@@ -72,21 +72,21 @@ public class AliasJsonDeserializerTest {
   }
 
   @Test
-  public void deserialize_Schould_ReturnNull_IfAliasIsEmpty()
+  void deserialize_Schould_ReturnNull_IfAliasIsEmpty()
       throws IOException {
     AliasMessageDTO result = deserializeOldAliasJson(MESSAGE_ALIAS_DTO_EMPTY_ALIAS_JSON);
     assertNull(result);
   }
 
   @Test
-  public void deserialize_Schould_ReturnNull_IfAliasIsNull()
+  void deserialize_Schould_ReturnNull_IfAliasIsNull()
       throws IOException {
     AliasMessageDTO result = deserializeOldAliasJson(MESSAGE_ALIAS_DTO_NULL_ALIAS_JSON);
     assertNull(result);
   }
 
   @Test
-  public void deserialize_Should_returnAliasDTOWithDecodedUsername_When_usernameIsEncoded()
+  void deserialize_Should_returnAliasDTOWithDecodedUsername_When_usernameIsEncoded()
       throws Exception {
     String aliasMessageDTO = asJsonString(new AliasMessageDTO()
         .videoCallMessageDTO(new VideoCallMessageDTO()
@@ -103,7 +103,7 @@ public class AliasJsonDeserializerTest {
   }
 
   @Test
-  public void deserialize_Should_returnAliasDTOWithDecodedUsername_When_usernameIsDecoded()
+  void deserialize_Should_returnAliasDTOWithDecodedUsername_When_usernameIsDecoded()
       throws Exception {
     String aliasMessageDTO = asJsonString(new AliasMessageDTO()
         .videoCallMessageDTO(new VideoCallMessageDTO()
@@ -120,7 +120,7 @@ public class AliasJsonDeserializerTest {
   }
 
   @Test
-  public void deserialize_Should_returnAliasDTOWithDecodedUsernames_When_usernamesAreEncoded()
+  void deserialize_Should_returnAliasDTOWithDecodedUsernames_When_usernamesAreEncoded()
       throws Exception {
     String aliasMessageDTO = asJsonString(new AliasMessageDTO()
         .forwardMessageDTO(new ForwardMessageDTO()

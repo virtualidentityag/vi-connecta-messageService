@@ -36,7 +36,7 @@ public class LiveEventNotificationService {
         liveProxyControllerApi.sendLiveEvent(rcGroupId);
       } catch (RestClientException e) {
         LogService.logInternalServerError(
-            String.format("Unable to trigger live event for rc group id %s", rcGroupId), e);
+            "Unable to trigger live event for rc group id %s".formatted(rcGroupId), e);
       }
     }
   }

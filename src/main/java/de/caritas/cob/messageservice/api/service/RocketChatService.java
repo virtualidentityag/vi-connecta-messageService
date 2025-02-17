@@ -136,7 +136,7 @@ public class RocketChatService {
 
     } catch (RestClientException exception) {
       LogService.logRocketChatServiceError(exception);
-      var msg = String.format("Could not read message stream from Rocket.Chat API (uri: %s)", uri);
+      var msg = "Could not read message stream from Rocket.Chat API (uri: %s)".formatted(uri);
       throw new InternalServerErrorException(msg, LogService::logRocketChatServiceError);
     }
   }
@@ -155,7 +155,7 @@ public class RocketChatService {
 
     } catch (IllegalArgumentException exception) {
       throw new InternalServerErrorException(
-          String.format("Could not build message stream URI for rcGroupId %s", rcGroupId),
+          "Could not build message stream URI for rcGroupId %s".formatted(rcGroupId),
           LogService::logRocketChatServiceError);
     }
   }
@@ -318,7 +318,7 @@ public class RocketChatService {
 
     } else {
       LogService.logRocketChatServiceError(
-          String.format("Could not set messages as read for system user in group %s", rcGroupId));
+          "Could not set messages as read for system user in group %s".formatted(rcGroupId));
     }
   }
 
@@ -363,8 +363,7 @@ public class RocketChatService {
 
     } catch (HttpClientErrorException clientErrorEx) {
       throw new RocketChatBadRequestException(
-          String.format(
-              "Rocket.Chat API call failed with status %s for parameters rcUserId: %s, rcGroupId: %s)",
+          "Rocket.Chat API call failed with status %s for parameters rcUserId: %s, rcGroupId: %s)".formatted(
               clientErrorEx.getStatusCode(), rcUserId, rcGroupId),
           LogService::logRocketChatBadRequestError);
     }
@@ -382,7 +381,7 @@ public class RocketChatService {
     } catch (HttpClientErrorException exception) {
       if (!isRcNotFoundResponse(exception)) {
         var errorFormat = "Could not read message (%s) from Rocket.Chat API";
-        var errorMessage = String.format(errorFormat, messageId);
+        var errorMessage = errorFormat.formatted(messageId);
         throw new InternalServerErrorException(errorMessage, LogService::logRocketChatServiceError);
       }
     }
