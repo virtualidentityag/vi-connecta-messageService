@@ -4,8 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import io.sentry.spring.EnableSentry;
 
 
+@EnableSentry(
+    dsn = "${onlineberatung.sentry.dsn}"
+)
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
