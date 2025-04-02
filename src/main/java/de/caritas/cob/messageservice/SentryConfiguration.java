@@ -15,6 +15,9 @@ public class SentryConfiguration {
   @Value("${sentry.environment}")
   private String environment;
 
+  @Value("${sentry.sample-rate:0.5}")
+  private Double sampleRate;
+
 
   @Bean
   public SentryOptions sentryOptions() {
@@ -23,7 +26,7 @@ public class SentryConfiguration {
     options.setEnvironment(environment);
     options.setTag("service", "MessageService");
     options.setRelease("2.0.0");
-    options.setTracesSampleRate(0.5);
+    options.setTracesSampleRate(sampleRate);
     options.setSendDefaultPii(false);
     return options;
   }
