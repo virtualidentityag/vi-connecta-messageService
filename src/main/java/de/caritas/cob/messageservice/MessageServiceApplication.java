@@ -28,8 +28,7 @@ import de.caritas.cob.messageservice.api.helper.AuthenticatedUser;
 
 
 @EnableSentry(
-    dsn = "${onlineberatung.sentry.dsn}"
-)
+    dsn = "${onlineberatung.sentry.dsn}")
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

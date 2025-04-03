@@ -1,12 +1,14 @@
-package de.caritas.cob.messageservice;
+package de.caritas.cob.messageservice.config;
 
 
 import io.sentry.SentryOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Slf4j
 public class SentryConfiguration {
 
   @Value("${onlineberatung.sentry.dsn}")
@@ -21,6 +23,7 @@ public class SentryConfiguration {
 
   @Bean
   public SentryOptions sentryOptions() {
+    log.info("Configuring Sentry with DSN: {}", sentryDsn);
     SentryOptions options = new SentryOptions();
     options.setDsn(sentryDsn);
     options.setEnvironment(environment);
