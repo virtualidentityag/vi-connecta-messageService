@@ -8,8 +8,7 @@ import io.sentry.spring.EnableSentry;
 
 
 @EnableSentry(
-    dsn = "${onlineberatung.sentry.dsn}"
-)
+    dsn = "${onlineberatung.sentry.dsn}")
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
