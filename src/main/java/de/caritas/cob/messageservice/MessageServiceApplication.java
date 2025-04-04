@@ -7,8 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import io.sentry.spring.EnableSentry;
 
 
-@EnableSentry(
-    dsn = "${onlineberatung.sentry.dsn}")
+@EnableSentry
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

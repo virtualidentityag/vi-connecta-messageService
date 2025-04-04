@@ -22,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 @ComponentScan(basePackages = {"de.caritas.cob.messageservice"})
 public class AppConfig implements ApplicationContextAware {
 
+  @Value("${onlineberatung.sentry.dsn}")
+  private String dsn;
 
   @Value("${sentry.environment}")
   private String environment;
@@ -34,6 +36,7 @@ public class AppConfig implements ApplicationContextAware {
   @PostConstruct
   public SentryOptions sentryOptions() {
     SentryOptions options = context.getBean(SentryOptions.class);
+    options.setDsn(dsn);
     options.setEnvironment(environment);
     options.setTag("service", "MessageService");
     options.setRelease("2.0.0");
