@@ -1,7 +1,9 @@
 package de.caritas.cob.messageservice.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.caritas.cob.messageservice.api.model.AliasArgs;
+import io.sentry.SentryOptions;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

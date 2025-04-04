@@ -9,7 +9,7 @@ import de.caritas.cob.messageservice.api.exception.RocketChatBadRequestException
 import de.caritas.cob.messageservice.api.service.LogService;
 import io.sentry.Sentry;
 import java.net.UnknownHostException;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NoArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.core.Ordered;
@@ -52,44 +52,6 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
   }
 
   /**
-   * Incoming request body could not be deserialized.
-   *
-   * @param ex the exception to be handled
-   * @param headers http headers
-   * @param status http status
-   * @param request web request
-   */
-  @Override
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(
-      final HttpMessageNotReadableException ex,
-      final HttpHeaders headers,
-      final HttpStatus status,
-      final WebRequest request) {
-    LogService.logWarning(status, ex);
-
-    return handleExceptionInternal(null, null, headers, status, request);
-  }
-
-  /**
-   * @Valid on object fails validation.
-   *
-   * @param ex the exception to be handled
-   * @param headers http headers
-   * @param status http status
-   * @param request web request
-   */
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      final MethodArgumentNotValidException ex,
-      final HttpHeaders headers,
-      final HttpStatus status,
-      final WebRequest request) {
-    LogService.logWarning(status, ex);
-
-    return handleExceptionInternal(null, null, headers, status, request);
-  }
-
-  /**
    * 409 - Conflict.
    *
    * @param ex      the exception to be handled
@@ -112,8 +74,8 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
   @ExceptionHandler({HttpClientErrorException.class})
   protected ResponseEntity<Object> handleHttpClientException(
       final HttpClientErrorException ex, final WebRequest request) {
-    LogService.logWarning(ex.getStatusCode(), ex);
-
+    LogService.logWarning((HttpStatus) ex.getStatusCode(), ex);
+    Sentry.captureException(ex);
     return handleExceptionInternal(null, null, new HttpHeaders(), ex.getStatusCode(), request);
   }
 
