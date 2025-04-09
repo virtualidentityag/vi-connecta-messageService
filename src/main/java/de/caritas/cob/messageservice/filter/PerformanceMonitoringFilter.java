@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-@ConditionalOnExpression("${performance.monitoring.enabled:true}")
+@ConditionalOnExpression("${sentry.performance.monitoring.enabled:true}")
 public class PerformanceMonitoringFilter implements Filter {
 
   @Override

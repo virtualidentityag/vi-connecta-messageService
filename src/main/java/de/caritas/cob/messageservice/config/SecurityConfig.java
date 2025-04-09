@@ -48,7 +48,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   @Value("${csrf.whitelist.header.property}")
   private String csrfWhitelistHeaderProperty;
 
-  @Value("${peformance.monitoring.enabled:false}")
+  @Value("${sentry.peformance.monitoring.enabled:false}")
   private boolean performanceMonitoringEnabled;
 
 
