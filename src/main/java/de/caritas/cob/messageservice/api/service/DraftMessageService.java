@@ -42,8 +42,9 @@ public class DraftMessageService {
    * @return a {@link SavedDraftType} for the created type
    */
   public SavedDraftType saveDraftMessage(String message, String rcGroupId, String t) {
-    locks.putIfAbsent(rcGroupId, new Object());
-    synchronized (locks.get(rcGroupId)) {
+    String lockKey = createLockKey(rcGroupId);
+    locks.putIfAbsent(lockKey, new Object());
+    synchronized (locks.get(lockKey)) {
       var optionalDraftMessage = findDraftMessage(rcGroupId);
       var draftMessage = createOrUpdateDraftMessage(rcGroupId, t, optionalDraftMessage);
       updateMessage(message, rcGroupId, draftMessage);
@@ -104,8 +105,9 @@ public class DraftMessageService {
    * @param rcGroupId the rocket chat group id
    */
   public void deleteDraftMessageIfExist(String rcGroupId) {
-    locks.putIfAbsent(rcGroupId, new Object());
-    synchronized (locks.get(rcGroupId)) {
+    String lockKey = createLockKey(rcGroupId);
+    locks.putIfAbsent(lockKey, new Object());
+    synchronized (locks.get(lockKey)) {
       this.findDraftMessage(rcGroupId).ifPresent(this::deleteDraftMessage);
     }
   }
@@ -148,6 +150,11 @@ public class DraftMessageService {
     } catch (CustomCryptoException e) {
       throw new InternalServerErrorException(e, LogService::logInternalServerError);
     }
+  }
+
+  private String createLockKey(String rcGroupId) {
+    String userId = this.authenticatedUser.getUserId();
+    return rcGroupId + "-" + userId;
   }
 
 }
