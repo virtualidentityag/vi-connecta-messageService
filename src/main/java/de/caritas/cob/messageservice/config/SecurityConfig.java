@@ -6,38 +6,41 @@ import static de.caritas.cob.messageservice.api.authorization.Authority.Authorit
 import static de.caritas.cob.messageservice.api.authorization.Authority.AuthorityValue.USER_DEFAULT;
 import static de.caritas.cob.messageservice.api.authorization.Authority.AuthorityValue.USE_FEEDBACK;
 
-import de.caritas.cob.messageservice.api.authorization.RoleAuthorizationAuthorityMapper;
+import de.caritas.cob.messageservice.config.security.AuthorisationService;
+import de.caritas.cob.messageservice.config.security.JwtAuthConverter;
+import de.caritas.cob.messageservice.config.security.JwtAuthConverterProperties;
 import de.caritas.cob.messageservice.filter.PerformanceMonitoringFilter;
 import de.caritas.cob.messageservice.filter.StatelessCsrfFilter;
-import org.keycloak.adapters.KeycloakConfigResolver;
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
-import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory;
-import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticatedActionsFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcessingFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakPreAuthActionsFilter;
-import org.keycloak.adapters.springsecurity.filter.KeycloakSecurityContextRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Provides the Keycloak/Spring Security configuration.
  */
+@Configuration
 @KeycloakConfiguration
-public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+public class SecurityConfig implements WebMvcConfigurer {
 
-  @SuppressWarnings("unused")
-  private final KeycloakClientRequestFactory keycloakClientRequestFactory;
+  public static final String[] WHITE_LIST =
+      new String[]{"/agencies/docs", "/agencies/docs/**", "/v2/api-docs", "/configuration/ui",
+          "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/actuator/health", "/actuator/health/**"};
+
+
+  @Autowired
+  AuthorisationService authorisationService;
+  @Autowired
+  JwtAuthConverterProperties jwtAuthConverterProperties;
+
 
   @Value("${csrf.cookie.property}")
   private String csrfCookieProperty;
@@ -49,143 +52,69 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   private String csrfWhitelistHeaderProperty;
 
   @Value("${sentry.peformance.monitoring.enabled:false}")
-  private boolean performanceMonitoringEnabled;
+  private boolean sentryPerformanceMonitoringEnabled;
 
-
-
-  /**
-   * Processes HTTP requests and checks for a valid spring security authentication for the
-   * (Keycloak) principal (authorization header).
-   */
-  public SecurityConfig(KeycloakClientRequestFactory keycloakClientRequestFactory) {
-    this.keycloakClientRequestFactory = keycloakClientRequestFactory;
-  }
 
   /**
    * Configure spring security filter chain: disable default Spring Boot CSRF token behavior and add
    * custom {@link StatelessCsrfFilter}, set all sessions to be fully stateless, define necessary
    * Keycloak roles for specific REST API paths.
    */
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    super.configure(http);
+  @Bean
+  public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+
 
     @SuppressWarnings("java:S1075") // URIs should not be hardcoded
     final var SINGLE_MESSAGE_PATH = "/messages/{messageId:[0-9A-Za-z]{17}}";
-    http.csrf().disable()
-        .addFilterBefore(new StatelessCsrfFilter(csrfCookieProperty, csrfHeaderProperty,
-            csrfWhitelistHeaderProperty), CsrfFilter.class)
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .sessionAuthenticationStrategy(sessionAuthenticationStrategy()).and().authorizeRequests()
-        .antMatchers(SpringFoxConfig.WHITE_LIST).permitAll()
-        .antMatchers("/messages/key")
-        .hasAuthority(TECHNICAL_DEFAULT)
-        .antMatchers("/messages", "/messages/draft", "/messages/videohint/new")
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
-        .antMatchers(HttpMethod.PATCH, SINGLE_MESSAGE_PATH)
-        .hasAnyAuthority(USER_DEFAULT)
-        .antMatchers(HttpMethod.GET, SINGLE_MESSAGE_PATH)
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
-        .antMatchers(HttpMethod.DELETE, SINGLE_MESSAGE_PATH)
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
-        .antMatchers("/messages/new")
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT, ANONYMOUS_DEFAULT)
-        .antMatchers("/messages/forward", "/messages/feedback/new")
-        .hasAuthority(USE_FEEDBACK)
-        .antMatchers("/messages/aliasonly/new")
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT)
-        .antMatchers("/messages/aliasWithContent/new")
-        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT)
-        .anyRequest()
-        .denyAll();
-    if (performanceMonitoringEnabled) {
+
+    var httpSecurity = http.csrf(csrf -> csrf.disable())
+        .addFilterBefore(new StatelessCsrfFilter(csrfCookieProperty, csrfHeaderProperty, csrfWhitelistHeaderProperty),
+            CsrfFilter.class);
+    if (sentryPerformanceMonitoringEnabled) {
       http.addFilterBefore(new PerformanceMonitoringFilter(), CsrfFilter.class);
     }
+
+    httpSecurity.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(requests -> requests
+        .requestMatchers(SecurityConfig.WHITE_LIST).permitAll()
+        .requestMatchers("/messages/key")
+        .hasAuthority(TECHNICAL_DEFAULT)
+        .requestMatchers("/messages", "/messages/draft", "/messages/videohint/new")
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
+        .requestMatchers(HttpMethod.PATCH, SINGLE_MESSAGE_PATH)
+        .hasAnyAuthority(USER_DEFAULT)
+        .requestMatchers(HttpMethod.GET, SINGLE_MESSAGE_PATH)
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
+        .requestMatchers(HttpMethod.DELETE, SINGLE_MESSAGE_PATH)
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, ANONYMOUS_DEFAULT)
+        .requestMatchers("/messages/new")
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT, ANONYMOUS_DEFAULT)
+        .requestMatchers("/messages/forward", "/messages/feedback/new")
+        .hasAuthority(USE_FEEDBACK)
+        .requestMatchers("/messages/aliasonly/new")
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT)
+        .requestMatchers("/messages/aliasWithContent/new")
+        .hasAnyAuthority(USER_DEFAULT, CONSULTANT_DEFAULT, TECHNICAL_DEFAULT)
+        .anyRequest()
+        .denyAll());
+
+    httpSecurity.oauth2ResourceServer(server -> server.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter())));
+    return httpSecurity.build();
   }
 
-  /**
-   * Use the KeycloakSpringBootConfigResolver to be able to save the Keycloak settings in the spring
-   * application properties.
-   */
-  @Bean
-  public KeycloakConfigResolver keyCloakConfigResolver() {
-    return new KeycloakSpringBootConfigResolver();
-  }
 
   /**
-   * Change springs authentication strategy to be stateless (no session is being created).
+   * Configure trailing slash match for all endpoints (needed as Spring Boot 3.0.0 changed default behaviour for trailing slash match)
+   * https://www.baeldung.com/spring-boot-3-migration (section 3.1)
    */
-  @Bean
   @Override
-  protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-    return new NullAuthenticatedSessionStrategy();
+  public void configurePathMatch(PathMatchConfigurer configurer) {
+    configurer.setUseTrailingSlashMatch(true);
   }
 
-  /**
-   * Change the default AuthenticationProvider to KeycloakAuthenticationProvider and register it in
-   * the spring security context. Set the GrantedAuthoritiesMapper to map the Keycloak roles to the
-   * granted authorities.
-   */
-  @Autowired
-  public void configureGlobal(final AuthenticationManagerBuilder auth,
-      RoleAuthorizationAuthorityMapper authorityMapper) {
-    var keyCloakAuthProvider = keycloakAuthenticationProvider();
-    keyCloakAuthProvider.setGrantedAuthoritiesMapper(authorityMapper);
-    auth.authenticationProvider(keyCloakAuthProvider);
-  }
-
-  /**
-   * From the Keycloak documentation: "Spring Boot attempts to eagerly register filter beans with
-   * the web application context. Therefore, when running the Keycloak Spring Security adapter in a
-   * Spring Boot environment, it may be necessary to add FilterRegistrationBeans to your security
-   * configuration to prevent the Keycloak filters from being registered twice."
-   *
-   * https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/java/spring-security-adapter.adoc
-   *
-   * {@link package.class#member label}
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Bean
-  public FilterRegistrationBean keycloakAuthenticationProcessingFilterRegistrationBean(
-      KeycloakAuthenticationProcessingFilter filter) {
-    var registrationBean = new FilterRegistrationBean(filter);
-    registrationBean.setEnabled(false);
-    return registrationBean;
+  public JwtAuthConverter jwtAuthConverter() {
+    return new JwtAuthConverter(jwtAuthConverterProperties, authorisationService);
   }
 
-  /**
-   * see above: {@link SecurityConfig#keycloakAuthenticationProcessingFilterRegistrationBean(KeycloakAuthenticationProcessingFilter).
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  @Bean
-  public FilterRegistrationBean keycloakPreAuthActionsFilterRegistrationBean(
-      KeycloakPreAuthActionsFilter filter) {
-    var registrationBean = new FilterRegistrationBean(filter);
-    registrationBean.setEnabled(false);
-    return registrationBean;
-  }
 
-  /**
-   * see above: {@link SecurityConfig#keycloakAuthenticationProcessingFilterRegistrationBean(KeycloakAuthenticationProcessingFilter).
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  @Bean
-  public FilterRegistrationBean keycloakAuthenticatedActionsFilterBean(
-      KeycloakAuthenticatedActionsFilter filter) {
-    var registrationBean = new FilterRegistrationBean(filter);
-    registrationBean.setEnabled(false);
-    return registrationBean;
-  }
-
-  /**
-   * see above: {@link SecurityConfig#keycloakAuthenticationProcessingFilterRegistrationBean(KeycloakAuthenticationProcessingFilter).
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  @Bean
-  public FilterRegistrationBean keycloakSecurityContextRequestFilterBean(
-      KeycloakSecurityContextRequestFilter filter) {
-    var registrationBean = new FilterRegistrationBean(filter);
-    registrationBean.setEnabled(false);
-    return registrationBean;
-  }
 }

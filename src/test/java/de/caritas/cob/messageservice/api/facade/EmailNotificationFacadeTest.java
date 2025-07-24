@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.caritas.cob.messageservice.api.model.AliasArgs;
-import de.caritas.cob.messageservice.api.model.ConsultantReassignment;
 import de.caritas.cob.messageservice.api.model.ReassignStatus;
 import de.caritas.cob.messageservice.api.service.helper.ServiceHelper;
 import de.caritas.cob.messageservice.api.tenant.TenantContext;
@@ -144,7 +143,7 @@ class EmailNotificationFacadeTest {
     // given
     when(clientFactory.userControllerApi()).thenReturn(userControllerApi);
     givenApiClientAndHeadersAreConfigured();
-    var consultantReassignment = new EasyRandom().nextObject(ConsultantReassignment.class);
+    var consultantReassignment = new EasyRandom().nextObject(AliasArgs.class);
 
     // when
     emailNotificationFacade.sendEmailAboutReassignDecision(RC_GROUP_ID, consultantReassignment,

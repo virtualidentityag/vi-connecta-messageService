@@ -110,7 +110,8 @@ public class Messenger {
     }
 
     statisticsService.fireEvent(new CreateMessageStatisticsEvent(authenticatedUser.getUserId(),
-        resolveUserRole(authenticatedUser), chatMessage.getRcGroupId(), false, resolveAdviceseekerUserId(chatMessage), TenantContext.getCurrentTenant()));
+        resolveUserRole(authenticatedUser), chatMessage.getRcGroupId(), false,
+        resolveAdviceseekerUserId(chatMessage), TenantContext.getCurrentTenant()));
   }
 
   private String resolveAdviceseekerUserId(ChatMessage chatMessage) {
@@ -172,8 +173,8 @@ public class Messenger {
       rocketChatService.markGroupAsReadForSystemUser(groupMessage.getRcGroupId());
       return mapper.messageResponseOf(response);
     } catch (RocketChatSendMessageException
-        | RocketChatPostMarkGroupAsReadException
-        | CustomCryptoException ex) {
+             | RocketChatPostMarkGroupAsReadException
+             | CustomCryptoException ex) {
       throw new InternalServerErrorException(ex, LogService::logInternalServerError);
     }
   }
@@ -258,7 +259,7 @@ public class Messenger {
     }
 
     if (!message.isA(MessageType.REASSIGN_CONSULTANT)) {
-      var errorMessage = String.format("Message (%s) is not a reassignment.", messageId);
+      var errorMessage = "Message (%s) is not a reassignment.".formatted(messageId);
       throw new BadRequestException(errorMessage, LogService::logBadRequest);
     }
 
@@ -280,15 +281,17 @@ public class Messenger {
   }
 
   /**
-   * Posts a message which contains an alias with the provided {@link MessageType} in
-   * the specified Rocket.Chat group.
+   * Posts a message which contains an alias with the provided {@link MessageType} in the specified
+   * Rocket.Chat group.
    *
    * @param rcGroupId   Rocket.Chat group ID
    * @param messageType {@link MessageType}
    * @return {@link MessageResponseDTO}
    */
-  public MessageResponseDTO postAliasMessage(String rcGroupId, MessageType messageType, String content) {
-    AliasMessageDTO aliasMessageDTO = new AliasMessageDTO().messageType(messageType).content(content);
+  public MessageResponseDTO postAliasMessage(String rcGroupId, MessageType messageType,
+      String content) {
+    AliasMessageDTO aliasMessageDTO = new AliasMessageDTO().messageType(messageType)
+        .content(content);
 
     var response = this.rocketChatService.postAliasOnlyMessageAsSystemUser(rcGroupId,
         aliasMessageDTO);

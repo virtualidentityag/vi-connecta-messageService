@@ -12,7 +12,8 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 import de.caritas.cob.messageservice.api.exception.CustomCryptoException;
 import de.caritas.cob.messageservice.api.exception.InternalServerErrorException;
@@ -44,25 +44,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jeasy.random.EasyRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RocketChatServiceTest {
+@ExtendWith(MockitoExtension.class)
+class RocketChatServiceTest {
 
   private static final int RC_OFFSET = 0;
   private static final int RC_COUNT = 0;
@@ -96,65 +96,68 @@ public class RocketChatServiceTest {
   @Mock
   private Logger logger;
 
-  @Before
-  public void setup() throws NoSuchFieldException, SecurityException {
-    Whitebox.setInternalState(rocketChatService, "rcHeaderAuthToken", RC_TOKEN);
-    Whitebox.setInternalState(rocketChatService, "rcHeaderUserId", RC_USER_ID);
-    Whitebox.setInternalState(rocketChatService, "rcQueryParamRoomId", RC_GROUP_ID);
-    Whitebox.setInternalState(rocketChatService, "rcQueryParamOffset", String.valueOf(RC_OFFSET));
-    Whitebox.setInternalState(rocketChatService, "rcQueryParamCount", String.valueOf(RC_COUNT));
-    Whitebox.setInternalState(rocketChatService, "rcQueryParamSort", "sort");
-    Whitebox.setInternalState(rocketChatService, "rcQueryParamSortValue", "{\"ts\":1}");
-    Whitebox.setInternalState(rocketChatService, "rcSendMessageUrl", "http://localhost/api/v1/chat.sendMessage");
-    Whitebox.setInternalState(rocketChatService, "rcPostGroupMessagesRead", FIELD_VALUE_RC_POST_GROUP_MESSAGES_READ);
-    Whitebox.setInternalState(rocketChatService, FIELD_NAME_RC_GET_GROUP_INFO_URL, FIELD_VALUE_RC_GET_GROUP_INFO_URL);
-    setInternalState(LogService.class, "LOGGER", logger);
-  }
+  @BeforeEach
+  void setup() throws NoSuchFieldException, SecurityException {
+    ReflectionTestUtils.setField(rocketChatService, "rcHeaderAuthToken", RC_TOKEN);
+    ReflectionTestUtils.setField(rocketChatService, "rcHeaderUserId", RC_USER_ID);
+    ReflectionTestUtils.setField(rocketChatService, "rcQueryParamRoomId", RC_GROUP_ID);
+    ReflectionTestUtils.setField(rocketChatService, "rcQueryParamOffset", String.valueOf(RC_OFFSET));
+    ReflectionTestUtils.setField(rocketChatService, "rcQueryParamCount", String.valueOf(RC_COUNT));
+    ReflectionTestUtils.setField(rocketChatService, "rcQueryParamSort", "sort");
+    ReflectionTestUtils.setField(rocketChatService, "rcQueryParamSortValue", "{\"ts\":1}");
+    ReflectionTestUtils.setField(rocketChatService, "rcSendMessageUrl", "http://localhost/api/v1/chat.sendMessage");
+    ReflectionTestUtils.setField(rocketChatService, "rcPostGroupMessagesRead", FIELD_VALUE_RC_POST_GROUP_MESSAGES_READ);
+    ReflectionTestUtils.setField(rocketChatService, FIELD_NAME_RC_GET_GROUP_INFO_URL, FIELD_VALUE_RC_GET_GROUP_INFO_URL);
 
-  @Test(expected = InternalServerErrorException.class)
-  public void getGroupMessages_Should_ThrowInternalServerErrorException_When_BuildMessageStreamUriFails()
-      throws NoSuchFieldException {
-
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", (Object[]) null);
-    rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void getGroupMessages_Should_ThrowInternalServerErrorException_When_RocketChatRequestFails()
-      throws NoSuchFieldException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl",  "http://localhost/api/v1/groups.messages");
-
-    HttpClientErrorException ex = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
-    when(restTemplate.exchange(any(), any(HttpMethod.class), any(),
-        ArgumentMatchers.<Class<MessageStreamDTO>>any())).thenThrow(ex);
-
-    rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
-  }
-
-  @Test(expected = InternalServerErrorException.class)
-  public void getGroupMessages_Should_ThrowInternalServerErrorException_When_DecryptionOfMessageFails()
-      throws NoSuchFieldException, CustomCryptoException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl",  "http://localhost/api/v1/groups.messages");
-
-    EasyRandom easyRandom = new EasyRandom();
-    MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
-    messageStreamDTO.setMessages(easyRandom.objects(MessagesDTO.class, 5)
-        .collect(Collectors.toList()));
-    ResponseEntity<MessageStreamDTO> response = new ResponseEntity<>(messageStreamDTO,
-        HttpStatus.OK);
-    CustomCryptoException exception = new CustomCryptoException(new Exception());
-
-    when(restTemplate.exchange(any(), any(HttpMethod.class), any(),
-        ArgumentMatchers.<Class<MessageStreamDTO>>any())).thenReturn(response);
-    when(encryptionService.decrypt(anyString(), anyString())).thenThrow(exception);
-
-    rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
   }
 
   @Test
-  public void getGroupMessages_Should_ReturnMessageStreamDTO_When_ProvidedWithValidParameters()
+  void getGroupMessages_Should_ThrowInternalServerErrorException_When_BuildMessageStreamUriFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", (Object[]) null);
+      rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
+    });
+  }
+
+  @Test
+  void getGroupMessages_Should_ThrowInternalServerErrorException_When_RocketChatRequestFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
+      ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+
+      HttpClientErrorException ex = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+      when(restTemplate.exchange(any(), any(HttpMethod.class), any(),
+          ArgumentMatchers.<Class<MessageStreamDTO>>any())).thenThrow(ex);
+
+      rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
+    });
+  }
+
+  @Test
+  void getGroupMessages_Should_ThrowInternalServerErrorException_When_DecryptionOfMessageFails() {
+    assertThrows(InternalServerErrorException.class, () -> {
+      ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+
+      EasyRandom easyRandom = new EasyRandom();
+      MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
+      messageStreamDTO.setMessages(easyRandom.objects(MessagesDTO.class, 5)
+          .collect(Collectors.toList()));
+      ResponseEntity<MessageStreamDTO> response = new ResponseEntity<>(messageStreamDTO,
+          HttpStatus.OK);
+      CustomCryptoException exception = new CustomCryptoException(new Exception());
+
+      when(restTemplate.exchange(any(), any(HttpMethod.class), any(),
+          ArgumentMatchers.<Class<MessageStreamDTO>>any())).thenReturn(response);
+      when(encryptionService.decrypt(anyString(), anyString())).thenThrow(exception);
+
+      rocketChatService.getGroupMessages(RC_TOKEN, RC_USER_ID, RC_GROUP_ID, 0, 0, Instant.now());
+    });
+  }
+
+  @Test
+  void getGroupMessages_Should_ReturnMessageStreamDTO_When_ProvidedWithValidParameters()
       throws NoSuchFieldException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+    ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
 
     List<MessagesDTO> messages = new ArrayList<>();
     ResponseEntity<MessageStreamDTO> entity = new ResponseEntity<>(
@@ -169,8 +172,8 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void getGroupMessages_Should_DecryptAllMessages() throws CustomCryptoException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+  void getGroupMessages_Should_DecryptAllMessages() throws CustomCryptoException {
+    ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
 
     EasyRandom easyRandom = new EasyRandom();
     MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
@@ -187,9 +190,9 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void getGroupMessages_Should_SetForwardAsMessageType_ForForwardedMessages()
+  void getGroupMessages_Should_SetForwardAsMessageType_ForForwardedMessages()
       throws NoSuchFieldException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+    ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
     EasyRandom easyRandom = new EasyRandom();
     MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
     messageStreamDTO.setMessages(easyRandom.objects(MessagesDTO.class, 5)
@@ -217,10 +220,10 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void getGroupMessages_Should_SetVideocallAsMessageType_ForVideocallMessages()
+  void getGroupMessages_Should_SetVideocallAsMessageType_ForVideocallMessages()
       throws NoSuchFieldException {
 
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+    ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
     EasyRandom easyRandom = new EasyRandom();
     MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
     messageStreamDTO.setMessages(easyRandom.objects(MessagesDTO.class, 5)
@@ -248,9 +251,9 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void getGroupMessages_Should_SetFurtherStepsAsMessageType_ForFurtherStepsMessages()
+  void getGroupMessages_Should_SetFurtherStepsAsMessageType_ForFurtherStepsMessages()
       throws NoSuchFieldException {
-    Whitebox.setInternalState(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
+    ReflectionTestUtils.setField(rocketChatService, "rcGetGroupMessageUrl", "http://localhost/api/v1/groups.messages");
     EasyRandom easyRandom = new EasyRandom();
     MessageStreamDTO messageStreamDTO = easyRandom.nextObject(MessageStreamDTO.class);
     messageStreamDTO.setMessages(easyRandom.objects(MessagesDTO.class, 5)
@@ -280,7 +283,7 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void postGroupMessage_Should_ReturnRocketChatPostMessageException_When_HttpRequestFails()
+  void postGroupMessage_Should_ReturnRocketChatPostMessageException_When_HttpRequestFails()
       throws CustomCryptoException {
 
     RocketChatSendMessageException ex = new RocketChatSendMessageException(new Exception("reason"));
@@ -298,24 +301,26 @@ public class RocketChatServiceTest {
       rocketChatService.postGroupMessage(createGroupMessage());
       fail("Expected exception: InternalServerErrorException");
     } catch (InternalServerErrorException internalServerErrorException) {
-      assertTrue("Expected InternalServerErrorException thrown", true);
+      assertTrue(true, "Expected InternalServerErrorException thrown");
     }
   }
 
-  @Test(expected = RocketChatBadRequestException.class)
-  public void getGroupInfo_Should_ReturnRocketChatBadRequestException_When_HttpRequestFails() {
+  @Test
+  void getGroupInfo_Should_ReturnRocketChatBadRequestException_When_HttpRequestFails() {
+    assertThrows(RocketChatBadRequestException.class, () -> {
 
-    HttpClientErrorException ex = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+      HttpClientErrorException ex = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
 
-    when(restTemplate.exchange(
-        any(), any(HttpMethod.class), any(), ArgumentMatchers.<Class<String>>any()))
-        .thenThrow(ex);
+      when(restTemplate.exchange(
+          any(), any(HttpMethod.class), any(), ArgumentMatchers.<Class<String>>any()))
+          .thenThrow(ex);
 
-    rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_GROUP_ID);
+      rocketChatService.getGroupInfo(RC_TOKEN, RC_USER_ID, RC_GROUP_ID);
+    });
   }
 
   @Test
-  public void postGroupMessage_Should_ReturnPostMessageResponseDTO_When_ProvidedWithValidParameters()
+  void postGroupMessage_Should_ReturnPostMessageResponseDTO_When_ProvidedWithValidParameters()
       throws CustomCryptoException {
 
     SendMessageResponseDTO response = new SendMessageResponseDTO(new SendMessageResultDTO(), true,
@@ -333,7 +338,7 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void postGroupMessage_should_not_encrypt_text_of_e2e_encrypted_messages()
+  void postGroupMessage_should_not_encrypt_text_of_e2e_encrypted_messages()
       throws CustomCryptoException {
     var e2eEncryptedMessage = ChatMessage.builder().rcToken(RC_TOKEN).rcUserId(RC_USER_ID)
         .rcGroupId(RC_GROUP_ID).text("e2eEncryptedMessage")
@@ -348,7 +353,7 @@ public class RocketChatServiceTest {
    * Method: markGroupAsReadForSystemUser
    */
   @Test
-  public void markGroupAsReadForSystemUser_Should_LogError_When_MarkGroupAsReadFails()
+  void markGroupAsReadForSystemUser_Should_LogError_When_MarkGroupAsReadFails()
       throws SecurityException, RocketChatUserNotInitializedException {
 
     when(rcCredentialsHelper.getSystemUser()).thenReturn(RCC_SYSTEM_USER);
@@ -361,12 +366,12 @@ public class RocketChatServiceTest {
       rocketChatService.markGroupAsReadForSystemUser(RC_GROUP_ID);
       fail("Expected exception: InternalServerErrorException");
     } catch (InternalServerErrorException internalServerErrorException) {
-      assertTrue("Expected InternalServerErrorException thrown", true);
+      assertTrue(true, "Expected InternalServerErrorException thrown");
     }
   }
 
   @Test
-  public void markGroupAsReadForSystemUser_Should_MarkGroupAsRead_When_ProvidedWithValidGroupId()
+  void markGroupAsReadForSystemUser_Should_MarkGroupAsRead_When_ProvidedWithValidGroupId()
       throws SecurityException, RocketChatUserNotInitializedException {
 
     when(rcCredentialsHelper.getSystemUser()).thenReturn(RCC_SYSTEM_USER);
@@ -381,27 +386,29 @@ public class RocketChatServiceTest {
   }
 
   @Test
-  public void markGroupAsReadForSystemUser_Should_LogError_When_ProvidedWithInvalidRocketChatSystemUserCredentials()
+  void markGroupAsReadForSystemUser_Should_NotInteractWithRestTemplate_When_ProvidedWithInvalidRocketChatSystemUserCredentials()
       throws SecurityException, RocketChatUserNotInitializedException {
 
     when(rcCredentialsHelper.getSystemUser()).thenReturn(INVALID_RCC_SYSTEM_USER);
 
     rocketChatService.markGroupAsReadForSystemUser(RC_GROUP_ID);
-    verify(logger, times(1)).error(anyString(), anyString());
-  }
 
-  @Test(expected = InternalServerErrorException.class)
-  public void markGroupAsReadForSystemUser_Should_ThrowInternalServerError_When_ProvidedWithOutChatSystemUserCredentials()
-      throws SecurityException, RocketChatUserNotInitializedException {
-
-    when(rcCredentialsHelper.getSystemUser())
-        .thenThrow(new RocketChatUserNotInitializedException(""));
-
-    rocketChatService.markGroupAsReadForSystemUser(RC_GROUP_ID);
+    verifyNoInteractions(restTemplate);
   }
 
   @Test
-  public void postAliasOnlyMessageAsSystemUser_Should_postGroupMessage() throws Exception {
+  void markGroupAsReadForSystemUser_Should_ThrowInternalServerError_When_ProvidedWithOutChatSystemUserCredentials() {
+    assertThrows(InternalServerErrorException.class, () -> {
+
+      when(rcCredentialsHelper.getSystemUser())
+          .thenThrow(new RocketChatUserNotInitializedException(""));
+
+      rocketChatService.markGroupAsReadForSystemUser(RC_GROUP_ID);
+    });
+  }
+
+  @Test
+  void postAliasOnlyMessageAsSystemUser_Should_postGroupMessage() throws Exception {
     RocketChatCredentials rocketChatCredentials =
         new EasyRandom().nextObject(RocketChatCredentials.class);
     when(this.rcCredentialsHelper.getSystemUser()).thenReturn(rocketChatCredentials);
@@ -413,17 +420,18 @@ public class RocketChatServiceTest {
     verify(this.restTemplate, times(1)).postForObject(anyString(), any(HttpEntity.class), any());
   }
 
-  @Test(expected = InternalServerErrorException.class)
-  public void postAliasOnlyMessageAsSystemUser_Should_throwInternalServerErrorException_When_CustomCryptoExceptionIsThrown()
-      throws CustomCryptoException, RocketChatUserNotInitializedException {
-    EasyRandom easyRandom = new EasyRandom();
-    RocketChatCredentials rocketChatCredentials = easyRandom
-        .nextObject(RocketChatCredentials.class);
-    AliasMessageDTO aliasMessageDTO = easyRandom.nextObject(AliasMessageDTO.class);
-    when(this.rcCredentialsHelper.getSystemUser()).thenReturn(rocketChatCredentials);
-    when(encryptionService.encrypt(anyString(), anyString()))
-        .thenThrow(new CustomCryptoException(new Exception()));
+  @Test
+  void postAliasOnlyMessageAsSystemUser_Should_throwInternalServerErrorException_When_CustomCryptoExceptionIsThrown() {
+    assertThrows(InternalServerErrorException.class, () -> {
+      EasyRandom easyRandom = new EasyRandom();
+      RocketChatCredentials rocketChatCredentials = easyRandom
+          .nextObject(RocketChatCredentials.class);
+      AliasMessageDTO aliasMessageDTO = easyRandom.nextObject(AliasMessageDTO.class);
+      when(this.rcCredentialsHelper.getSystemUser()).thenReturn(rocketChatCredentials);
+      when(encryptionService.encrypt(anyString(), anyString()))
+          .thenThrow(new CustomCryptoException(new Exception()));
 
-    this.rocketChatService.postAliasOnlyMessageAsSystemUser(RC_GROUP_ID, aliasMessageDTO);
+      this.rocketChatService.postAliasOnlyMessageAsSystemUser(RC_GROUP_ID, aliasMessageDTO);
+    });
   }
 }

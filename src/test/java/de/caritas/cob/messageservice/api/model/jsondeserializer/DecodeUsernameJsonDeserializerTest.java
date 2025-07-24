@@ -2,8 +2,8 @@ package de.caritas.cob.messageservice.api.model.jsondeserializer;
 
 import static de.caritas.cob.messageservice.testhelper.TestConstants.USERNAME_DECODED;
 import static de.caritas.cob.messageservice.testhelper.TestConstants.USERNAME_ENCODED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -14,40 +14,40 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.ClassUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DecodeUsernameJsonDeserializerTest {
+@ExtendWith(MockitoExtension.class)
+class DecodeUsernameJsonDeserializerTest {
 
   private ObjectMapper objectMapper;
   private DecodeUsernameJsonDeserializer decodeUsernameJsonDeserializer;
   private UserHelper userHelper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userHelper = new UserHelper();
     objectMapper = new ObjectMapper();
     decodeUsernameJsonDeserializer = new DecodeUsernameJsonDeserializer(userHelper);
   }
 
   @Test
-  public void decodeUsernameJsonDeserializer_Schould_haveNoArgsConstructor() {
+  void decodeUsernameJsonDeserializer_Schould_haveNoArgsConstructor() {
     assertTrue(ClassUtils.hasConstructor(DecodeUsernameJsonDeserializer.class));
   }
 
   @Test
-  public void deserialize_Schould_DecodeEncodedUsername() throws JsonParseException, IOException {
+  void deserialize_Schould_DecodeEncodedUsername() throws JsonParseException, IOException {
     String json = "{\"username:\":\"" + USERNAME_ENCODED + "\"}";
     String result = deserializeUsername(json);
     assertEquals(USERNAME_DECODED, result);
   }
 
   @Test
-  public void deserialize_SchouldNot_DecodeNotEncodedUsername()
+  void deserialize_SchouldNot_DecodeNotEncodedUsername()
       throws JsonParseException, IOException {
     String json = "{\"username:\":\"" + USERNAME_DECODED + "\"}";
     String result = deserializeUsername(json);

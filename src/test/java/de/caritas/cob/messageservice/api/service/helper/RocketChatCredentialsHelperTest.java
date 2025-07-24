@@ -1,27 +1,27 @@
 package de.caritas.cob.messageservice.api.service.helper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -31,8 +31,8 @@ import de.caritas.cob.messageservice.api.model.rocket.chat.login.DataDTO;
 import de.caritas.cob.messageservice.api.model.rocket.chat.login.LoginResponseDTO;
 import de.caritas.cob.messageservice.api.model.rocket.chat.logout.LogoutResponseDTO;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RocketChatCredentialsHelperTest {
+@ExtendWith(MockitoExtension.class)
+class RocketChatCredentialsHelperTest {
 
   /**
    * FIELD Names
@@ -114,14 +114,14 @@ public class RocketChatCredentialsHelperTest {
   @Mock
   private RestTemplate restTemplate;
 
-  @Before
-  public void setup() throws NoSuchFieldException {
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USERNAME, SYSTEM_USER_USERNAME);
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_PASSWORD, SYSTEM_USER_PW);
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_API_POST_USER_LOGIN, RC_URL_CHAT_USER_LOGIN);
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_API_POST_USER_LOGOUT, RC_URL_CHAT_USER_LOGOUT);
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_HEADER_AUTH_TOKEN, FIELD_VALUE_ROCKET_CHAT_HEADER_AUTH_TOKEN);
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_HEADER_USER_ID, FIELD_VALUE_ROCKET_CHAT_HEADER_USER_ID);
+  @BeforeEach
+  void setup() throws NoSuchFieldException {
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USERNAME, SYSTEM_USER_USERNAME);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_PASSWORD, SYSTEM_USER_PW);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_API_POST_USER_LOGIN, RC_URL_CHAT_USER_LOGIN);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_API_POST_USER_LOGOUT, RC_URL_CHAT_USER_LOGOUT);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_HEADER_AUTH_TOKEN, FIELD_VALUE_ROCKET_CHAT_HEADER_AUTH_TOKEN);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_ROCKET_CHAT_HEADER_USER_ID, FIELD_VALUE_ROCKET_CHAT_HEADER_USER_ID);
   }
 
   /**
@@ -131,7 +131,7 @@ public class RocketChatCredentialsHelperTest {
    **/
 
   @Test
-  public void updateCredentials_Should_LoginAUsers_WhenNoUsersAreLoggedIn()
+  void updateCredentials_Should_LoginAUsers_WhenNoUsersAreLoggedIn()
       throws RocketChatUserNotInitializedException {
     // Prepare Header for Requests
     HttpHeaders headers = new HttpHeaders();
@@ -159,7 +159,7 @@ public class RocketChatCredentialsHelperTest {
   }
 
   @Test
-  public void updateCredentials_Should_LoginBUsers_WhenAUsersAreLoggedIn()
+  void updateCredentials_Should_LoginBUsers_WhenAUsersAreLoggedIn()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
     // Prepare Header for Requests
     HttpHeaders headers = new HttpHeaders();
@@ -177,7 +177,7 @@ public class RocketChatCredentialsHelperTest {
 
     RocketChatCredentials systemA = new RocketChatCredentials(SYSTEM_USER_A_TOKEN, SYSTEM_USER_A_ID,
         SYSTEM_USER_A_USERNAME, LocalDateTime.now().minusMinutes(5));
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, systemA);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, systemA);
 
     // Get and check system user - pre test needs to be User A
     RocketChatCredentials systemUser = rcCredentialHelper.getSystemUser();
@@ -197,7 +197,7 @@ public class RocketChatCredentialsHelperTest {
   }
 
   @Test
-  public void updateCredentials_Should_LogoutAndReLoginBUsers_WhenAllUsersArePresent()
+  void updateCredentials_Should_LogoutAndReLoginBUsers_WhenAllUsersArePresent()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
 
     HttpHeaders headers = new HttpHeaders();
@@ -206,17 +206,17 @@ public class RocketChatCredentialsHelperTest {
     // create and set system A user
     RocketChatCredentials systemA = new RocketChatCredentials(SYSTEM_USER_A_TOKEN, SYSTEM_USER_A_ID,
         SYSTEM_USER_A_USERNAME, LocalDateTime.now().minusMinutes(5));
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, systemA);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, systemA);
 
 
     // create and set system B user
     RocketChatCredentials systemB = new RocketChatCredentials(SYSTEM_USER_B_TOKEN, SYSTEM_USER_B_ID,
         SYSTEM_USER_B_USERNAME, LocalDateTime.now().minusMinutes(1));
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, systemB);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, systemB);
 
     // prepare logout intercept for system user
     HttpHeaders headersLogoutSys = new HttpHeaders();
-    headersLogoutSys.setContentType(MediaType.APPLICATION_JSON_UTF8);
+    headersLogoutSys.setContentType(MediaType.APPLICATION_JSON);
     headersLogoutSys.add(FIELD_VALUE_ROCKET_CHAT_HEADER_AUTH_TOKEN, SYSTEM_USER_A_TOKEN);
     headersLogoutSys.add(FIELD_VALUE_ROCKET_CHAT_HEADER_USER_ID, SYSTEM_USER_A_ID);
     HttpEntity<Void> requestSysLogout = new HttpEntity<Void>(headersLogoutSys);
@@ -258,23 +258,23 @@ public class RocketChatCredentialsHelperTest {
    **/
 
   @Test
-  public void getSystemUser_Should_ThrowRocketChatUserNotInitializedException_WhenNoUserIsInitialized() {
+  void getSystemUser_Should_ThrowRocketChatUserNotInitializedException_WhenNoUserIsInitialized() {
     try {
       rcCredentialHelper.getSystemUser();
       fail("Expected exception: RocketChatUserNotInitializedException");
     } catch (RocketChatUserNotInitializedException ex) {
-      assertTrue("Excepted RocketChatUserNotInitializedException thrown", true);
+      assertTrue(true, "Excepted RocketChatUserNotInitializedException thrown");
     }
   }
 
   @Test
-  public void getSystemUser_Should_ReturnUserA_WhenOnlyUserAIsInitialized()
+  void getSystemUser_Should_ReturnUserA_WhenOnlyUserAIsInitialized()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
 
     RocketChatCredentials sysUserA = new RocketChatCredentials(SYSTEM_USER_A_ID,
         SYSTEM_USER_A_TOKEN, SYSTEM_USER_A_USERNAME, LocalDateTime.now());
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
 
     RocketChatCredentials systemUser = rcCredentialHelper.getSystemUser();
 
@@ -282,13 +282,13 @@ public class RocketChatCredentialsHelperTest {
   }
 
   @Test
-  public void getSystemUser_Should_ReturnUserB_WhenOnlyUserBIsInitialized()
+  void getSystemUser_Should_ReturnUserB_WhenOnlyUserBIsInitialized()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
 
     RocketChatCredentials sysUserB = new RocketChatCredentials(SYSTEM_USER_B_ID,
         SYSTEM_USER_B_TOKEN, SYSTEM_USER_B_USERNAME, LocalDateTime.now());
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
 
     RocketChatCredentials systemUser = rcCredentialHelper.getSystemUser();
 
@@ -296,20 +296,20 @@ public class RocketChatCredentialsHelperTest {
   }
 
   @Test
-  public void getSystemUser_Should_ReturnUserA_WhenUserAIsNewer()
+  void getSystemUser_Should_ReturnUserA_WhenUserAIsNewer()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
 
     // Prepare User A
     RocketChatCredentials sysUserA = new RocketChatCredentials(SYSTEM_USER_A_ID,
         SYSTEM_USER_A_TOKEN, SYSTEM_USER_A_USERNAME, LocalDateTime.now());
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
 
     // Prepare User B - 5 minutes older than User A
     RocketChatCredentials sysUserB = new RocketChatCredentials(SYSTEM_USER_B_ID,
         SYSTEM_USER_B_TOKEN, SYSTEM_USER_B_USERNAME, LocalDateTime.now().minusMinutes(5));
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
 
     // Get User from Class (actual test)
     RocketChatCredentials systemUser = rcCredentialHelper.getSystemUser();
@@ -319,20 +319,20 @@ public class RocketChatCredentialsHelperTest {
   }
 
   @Test
-  public void getSystemUser_Should_ReturnUserB_WhenUserBIsNewer()
+  void getSystemUser_Should_ReturnUserB_WhenUserBIsNewer()
       throws NoSuchFieldException, RocketChatUserNotInitializedException {
 
     // Prepare User A - 5 minutes older than User B
     RocketChatCredentials sysUserA = new RocketChatCredentials(SYSTEM_USER_A_ID,
         SYSTEM_USER_A_TOKEN, SYSTEM_USER_A_USERNAME, LocalDateTime.now().minusMinutes(5));
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_A, sysUserA);
 
     // Prepare User B
     RocketChatCredentials sysUserB = new RocketChatCredentials(SYSTEM_USER_B_ID,
         SYSTEM_USER_B_TOKEN, SYSTEM_USER_B_USERNAME, LocalDateTime.now());
 
-    Whitebox.setInternalState(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
+    ReflectionTestUtils.setField(rcCredentialHelper, FIELD_NAME_SYSTEM_USER_B, sysUserB);
 
     // Get User from Class (actual test)
     RocketChatCredentials systemUser = rcCredentialHelper.getSystemUser();
