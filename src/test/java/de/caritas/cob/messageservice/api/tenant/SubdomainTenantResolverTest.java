@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import de.caritas.cob.messageservice.api.service.TenantService;
 import de.caritas.cob.messageservice.filter.SubdomainExtractor;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

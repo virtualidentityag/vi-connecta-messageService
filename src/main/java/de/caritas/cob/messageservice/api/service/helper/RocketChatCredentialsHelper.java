@@ -173,7 +173,7 @@ public class RocketChatCredentialsHelper {
 
     } catch (Exception ex) {
       LogService.logRocketChatServiceError(
-          String.format("Could not log out user id (%s) from Rocket.Chat", rcUserId), ex);
+          "Could not log out user id (%s) from Rocket.Chat".formatted(rcUserId), ex);
     }
   }
 
@@ -184,7 +184,7 @@ public class RocketChatCredentialsHelper {
   private HttpHeaders getStandardHttpHeaders(String rcToken, String rcUserId) {
 
     HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     httpHeaders.add(rocketChatHeaderAuthToken, rcToken);
     httpHeaders.add(rocketChatHeaderUserId, rcUserId);
     return httpHeaders;

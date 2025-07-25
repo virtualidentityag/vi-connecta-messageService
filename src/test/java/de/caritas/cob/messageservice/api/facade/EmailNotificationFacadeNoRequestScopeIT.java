@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import de.caritas.cob.messageservice.api.helper.AuthenticatedUser;
 import de.caritas.cob.messageservice.api.model.AliasArgs;
-import de.caritas.cob.messageservice.api.model.ConsultantReassignment;
 import de.caritas.cob.messageservice.userservice.generated.ApiClient;
 import de.caritas.cob.messageservice.userservice.generated.web.UserControllerApi;
 import java.util.Optional;
@@ -91,7 +90,7 @@ class EmailNotificationFacadeNoRequestScopeIT {
 
     underTest.sendEmailAboutReassignDecision(
         RandomStringUtils.randomAlphanumeric(16),
-        easyRandom.nextObject(ConsultantReassignment.class),
+        easyRandom.nextObject(AliasArgs.class),
         Optional.of(easyRandom.nextLong()),
         RandomStringUtils.randomAlphanumeric(16)
     );

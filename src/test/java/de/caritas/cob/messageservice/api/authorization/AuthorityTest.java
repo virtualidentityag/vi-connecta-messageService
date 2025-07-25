@@ -1,20 +1,20 @@
 package de.caritas.cob.messageservice.api.authorization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.caritas.cob.messageservice.api.authorization.Authority.AuthorityValue;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AuthorityTest {
+@ExtendWith(MockitoExtension.class)
+class AuthorityTest {
 
   @Test
-  public void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleConsultant() {
+  void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleConsultant() {
 
     List<String> result = Authority.getAuthoritiesByUserRole(Role.CONSULTANT);
 
@@ -25,7 +25,7 @@ public class AuthorityTest {
   }
 
   @Test
-  public void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRolePeerConsultant() {
+  void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRolePeerConsultant() {
 
     List<String> result = Authority.getAuthoritiesByUserRole(Role.PEER_CONSULTANT);
 
@@ -36,7 +36,7 @@ public class AuthorityTest {
   }
 
   @Test
-  public void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleUser() {
+  void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleUser() {
 
     List<String> result = Authority.getAuthoritiesByUserRole(Role.USER);
 
@@ -47,7 +47,7 @@ public class AuthorityTest {
   }
 
   @Test
-  public void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleTechnical() {
+  void getAuthoritiesByRoleName_Should_ReturnCorrectRoles_ForKeycloakRoleTechnical() {
 
     List<String> result = Authority.getAuthoritiesByUserRole(Role.TECHNICAL);
 

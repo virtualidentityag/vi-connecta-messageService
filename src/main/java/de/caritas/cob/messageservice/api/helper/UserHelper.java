@@ -26,7 +26,7 @@ public class UserHelper {
           .replace(BASE32_PLACEHOLDER, BASE32_PLACEHOLDER_REPLACE_STRING);
     } catch (Exception exception) {
       // Catch generic exception because of lack of base32 documentation
-      throw new HelperException(String.format("Could not encode username %s", username), exception);
+      throw new HelperException("Could not encode username %s".formatted(username), exception);
     }
   }
 
@@ -43,7 +43,7 @@ public class UserHelper {
           .toUpperCase().replace(BASE32_PLACEHOLDER_REPLACE_STRING, BASE32_PLACEHOLDER)));
     } catch (Exception exception) {
       // Catch generic exception because of lack of base32 documentation
-      throw new HelperException(String.format("Could not decode username %s", username), exception);
+      throw new HelperException("Could not decode username %s".formatted(username), exception);
     }
   }
 

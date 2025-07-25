@@ -17,13 +17,13 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import org.jeasy.random.EasyRandom;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class JSONHelperTests {
+class JSONHelperTests {
 
   @Test
-  public void convertAliasMessageDTOToString_Should_returnConvertedString_When_aliasMessageDTOIsvalid() {
+  void convertAliasMessageDTOToString_Should_returnConvertedString_When_aliasMessageDTOIsvalid() {
     AliasMessageDTO aliasMessageDTO = new EasyRandom().nextObject(AliasMessageDTO.class);
 
     Optional<String> result = JSONHelper.convertAliasMessageDTOToString(aliasMessageDTO);
@@ -32,14 +32,14 @@ public class JSONHelperTests {
   }
 
   @Test
-  public void convertStringToAliasMessageDTO_Should_returnOptionalEmpty_When_jsonStringCanNotBeConverted() {
+  void convertStringToAliasMessageDTO_Should_returnOptionalEmpty_When_jsonStringCanNotBeConverted() {
     Optional<AliasMessageDTO> result = JSONHelper.convertStringToAliasMessageDTO("alias");
 
     assertThat(result.isPresent(), is(false));
   }
 
   @Test
-  public void serialize_Should_returnOptionalWithSerializedObject() {
+  void serialize_Should_returnOptionalWithSerializedObject() {
 
     OffsetDateTime offsetDateTime = CustomOffsetDateTime.nowInUtc();
 
@@ -76,6 +76,10 @@ public class JSONHelperTests {
             + EventType.CREATE_MESSAGE
             + "\","
             + "  \"hasAttachment\": false"
+            + ","
+            + "  \"receiverId\": null"
+            + ","
+            + "  \"tenantId\": null"
             + "}";
 
     assertThat(result.get(), jsonEquals(expectedJson).whenIgnoringPaths("timestamp"));
@@ -83,7 +87,7 @@ public class JSONHelperTests {
   }
 
   @Test
-  public void serialize_Should_returnOptionalEmpty_When_jsonStringCanNotBeConverted()
+  void serialize_Should_returnOptionalEmpty_When_jsonStringCanNotBeConverted()
       throws JsonProcessingException {
 
     ObjectMapper om = Mockito.spy(new ObjectMapper());

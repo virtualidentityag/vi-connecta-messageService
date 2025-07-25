@@ -1,6 +1,6 @@
 package de.caritas.cob.messageservice.filter;
 
-import static de.caritas.cob.messageservice.config.SpringFoxConfig.WHITE_LIST;
+import static de.caritas.cob.messageservice.config.SecurityConfig.WHITE_LIST;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;

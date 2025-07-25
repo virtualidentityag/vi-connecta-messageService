@@ -720,10 +720,6 @@ components:
         - "REASSIGN_CONSULTANT_RESET_LAST_MESSAGE"
 
     AliasArgs:
-      oneOf:
-        - $ref: '#/components/schemas/ConsultantReassignment'
-
-    ConsultantReassignment:
       type: object
       description: >
         toConsultantId, toConsultantName, toAskerName and fromConsultantName are required during
