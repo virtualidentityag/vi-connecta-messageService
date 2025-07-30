@@ -2,7 +2,7 @@ package de.caritas.cob.messageservice.scheduler;
 
 import de.caritas.cob.messageservice.api.service.LogService;
 import de.caritas.cob.messageservice.api.service.helper.RocketChatCredentialsHelper;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

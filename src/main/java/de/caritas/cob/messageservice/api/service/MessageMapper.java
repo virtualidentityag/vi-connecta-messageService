@@ -11,7 +11,6 @@ import de.caritas.cob.messageservice.api.exception.NoMasterKeyException;
 import de.caritas.cob.messageservice.api.helper.UserHelper;
 import de.caritas.cob.messageservice.api.model.AliasArgs;
 import de.caritas.cob.messageservice.api.model.AliasMessageDTO;
-import de.caritas.cob.messageservice.api.model.ConsultantReassignment;
 import de.caritas.cob.messageservice.api.model.MessageResponseDTO;
 import de.caritas.cob.messageservice.api.model.MessageType;
 import de.caritas.cob.messageservice.api.model.jsondeserializer.AliasJsonDeserializer;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Alias;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -145,19 +145,19 @@ public class MessageMapper {
     }
   }
 
-  public ConsultantReassignment consultantReassignmentOf(Message message) {
+  public AliasArgs consultantReassignmentOf(Message message) {
     try {
       var foundMsgString = encryptionService.decrypt(message.getMsg(), message.getRid());
       foundMsgString = foundMsgString.replace("&quot;", "\"");
-      return objectMapper.readValue(foundMsgString, ConsultantReassignment.class);
+      return objectMapper.readValue(foundMsgString, AliasArgs.class);
     } catch (JsonProcessingException | CustomCryptoException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public UpdateMessage updateMessageOf(Message message, ConsultantReassignment reassignment) {
+  public UpdateMessage updateMessageOf(Message message, AliasArgs aliasArgs) {
     try {
-      var text = objectMapper.writeValueAsString(reassignment);
+      var text = objectMapper.writeValueAsString(aliasArgs);
       var encryptedText = encryptionService.encrypt(text, message.getRid());
 
       var updatedMessage = new UpdateMessage();

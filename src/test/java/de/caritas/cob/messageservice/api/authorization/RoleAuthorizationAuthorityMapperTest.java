@@ -1,57 +1,70 @@
 package de.caritas.cob.messageservice.api.authorization;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.mockito.Mockito.mock;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
-import org.keycloak.adapters.spi.KeycloakAccount;
-import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount;
-import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.core.Authentication;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RoleAuthorizationAuthorityMapperTest {
+class RoleAuthorizationAuthorityMapperTest {
 
-  private final KeycloakAuthenticationProvider provider = new KeycloakAuthenticationProvider();
-  private final Set<String> roles = Stream.of(Role.values())
-      .map(Role::getRoleName)
-      .collect(Collectors.toSet());
+  private final RoleAuthorizationAuthorityMapper roleAuthorizationAuthorityMapper =
+      new RoleAuthorizationAuthorityMapper();
 
   @Test
-  public void roleAuthorizationAuthorityMapper_Should_GrantCorrectAuthorities() throws Exception {
+  void mapAuthorities_Should_returnGrantedConsultantAuthority_When_authorityConsultant() {
+    List<GrantedAuthority> grantedAuthorities = Stream.of("consultant")
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
 
-    Principal principal = mock(Principal.class);
-    RefreshableKeycloakSecurityContext securityContext =
-        mock(RefreshableKeycloakSecurityContext.class);
-    KeycloakAccount account = new SimpleKeycloakAccount(principal, roles, securityContext);
+    Collection<? extends GrantedAuthority> mappedAuthorities = this.roleAuthorizationAuthorityMapper
+        .mapAuthorities(grantedAuthorities);
 
-    KeycloakAuthenticationToken token = new KeycloakAuthenticationToken(account, false);
+    assertThat(mappedAuthorities).hasSize(1);
+    List<String> authorities = mappedAuthorities.stream()
+        .map(grantedAuthority -> grantedAuthority.getAuthority()).toList();
+    assertThat(authorities).containsAll(Authority.CONSULTANT.getAuthorities());
+  }
 
-    RoleAuthorizationAuthorityMapper roleAuthorizationAuthorityMapper =
-        new RoleAuthorizationAuthorityMapper();
-    provider.setGrantedAuthoritiesMapper(roleAuthorizationAuthorityMapper);
+  @Test
+  void mapAuthorities_Should_returnGrantedTechnicalAuthority_When_authoritiesContainsTechnical() {
+    List<GrantedAuthority> grantedAuthorities = Stream.of("a", "v", "technical", "c")
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
 
-    Authentication result = provider.authenticate(token);
+    Collection<? extends GrantedAuthority> mappedAuthorities = this.roleAuthorizationAuthorityMapper
+        .mapAuthorities(grantedAuthorities);
 
-    Set<SimpleGrantedAuthority> expectedGrantendAuthorities = new HashSet<>();
-    roles.forEach(roleName -> {
-      expectedGrantendAuthorities.addAll(Authority
-          .getAuthoritiesByUserRole(Role.getRoleByName(roleName).get()).stream()
-          .map(SimpleGrantedAuthority::new).collect(Collectors.toSet()));
-    });
+    assertThat(mappedAuthorities).hasSize(1);
+    List<String> authorities = mappedAuthorities.stream()
+        .map(grantedAuthority -> grantedAuthority.getAuthority()).toList();
+    assertThat(authorities).containsAll(Authority.TECHNICAL.getAuthorities());
 
-    assertThat(expectedGrantendAuthorities, containsInAnyOrder(result.getAuthorities().toArray()));
+  }
+
+  @Test
+  void mapAuthorities_Should_returnEmptyCollection_When_authorityIsEmpty() {
+    Collection<? extends GrantedAuthority> mappedAuthorities = this.roleAuthorizationAuthorityMapper
+        .mapAuthorities(emptyList());
+
+    assertThat(mappedAuthorities).isEmpty();
+  }
+
+  @Test
+  void mapAuthorities_Should_returnEmptyCollection_When_authoritiesAreNotProvided() {
+    List<GrantedAuthority> grantedAuthorities = Stream.of("a", "v", "b", "c")
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
+
+    Collection<? extends GrantedAuthority> mappedAuthorities = this.roleAuthorizationAuthorityMapper
+        .mapAuthorities(grantedAuthorities);
+
+    assertThat(mappedAuthorities).isEmpty();
   }
 
 }

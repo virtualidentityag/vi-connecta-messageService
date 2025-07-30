@@ -11,18 +11,18 @@ import de.caritas.cob.messageservice.api.helper.CustomOffsetDateTime;
 import de.caritas.cob.messageservice.statisticsservice.generated.web.model.EventType;
 import de.caritas.cob.messageservice.statisticsservice.generated.web.model.UserRole;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CreateMessageStatisticsEventTest {
 
   private static final long TENANT_ID = 1L;
   private CreateMessageStatisticsEvent createMessageStatisticsEvent;
 
-  @Before
+  @BeforeEach
   public void setup() throws NoSuchFieldException, IllegalAccessException {
     createMessageStatisticsEvent =
         new CreateMessageStatisticsEvent(CONSULTANT_ID, UserRole.CONSULTANT, RC_GROUP_ID, false, ADVICESEEKER_ID,

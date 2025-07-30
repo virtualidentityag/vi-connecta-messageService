@@ -1,7 +1,6 @@
 package de.caritas.cob.messageservice.api.facade;
 
 import de.caritas.cob.messageservice.api.model.AliasArgs;
-import de.caritas.cob.messageservice.api.model.ConsultantReassignment;
 import de.caritas.cob.messageservice.api.model.ReassignStatus;
 import de.caritas.cob.messageservice.api.service.helper.ServiceHelper;
 import de.caritas.cob.messageservice.api.tenant.TenantContext;
@@ -73,6 +72,7 @@ public class EmailNotificationFacade {
   @Async
   public void sendEmailAboutReassignRequest(String rcGroupId, AliasArgs aliasArgs,
       Optional<Long> tenantId, String accessToken) {
+
     var reassignmentNotification = new ReassignmentNotificationDTO()
         .rcGroupId(rcGroupId)
         .toConsultantId(aliasArgs.getToConsultantId())
@@ -85,7 +85,7 @@ public class EmailNotificationFacade {
 
   @Async
   public void sendEmailAboutReassignDecision(String roomId,
-      ConsultantReassignment consultantReassignment, Optional<Long> tenantId, String accessToken) {
+      AliasArgs consultantReassignment, Optional<Long> tenantId, String accessToken) {
     var reassignmentNotification = new ReassignmentNotificationDTO()
         .rcGroupId(roomId)
         .toConsultantId(consultantReassignment.getToConsultantId())

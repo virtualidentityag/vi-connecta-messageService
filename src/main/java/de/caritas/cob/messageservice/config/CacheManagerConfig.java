@@ -2,9 +2,7 @@ package de.caritas.cob.messageservice.config;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,11 +23,6 @@ public class CacheManagerConfig {
 
   @Value("${cache.tenant.configuration.timeToLiveSeconds}")
   private long tenantTimeToLiveSeconds;
-
-  @Bean
-  public CacheManager cacheManager() {
-    return new EhCacheCacheManager(ehCacheManager());
-  }
 
   @Bean(destroyMethod = "shutdown")
   public net.sf.ehcache.CacheManager ehCacheManager() {

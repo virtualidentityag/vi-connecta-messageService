@@ -1,7 +1,7 @@
 package de.caritas.cob.messageservice.api.authorization;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,12 +26,11 @@ public class RoleAuthorizationAuthorityMapper implements GrantedAuthoritiesMappe
     return mapAuthorities(roleNames);
   }
 
-  private Set<GrantedAuthority> mapAuthorities(Set<String> roleNames) {
-    return roleNames.parallelStream()
-        .map(Role::getRoleByName)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .map(Authority::getAuthoritiesByUserRole)
+  public Set<GrantedAuthority> mapAuthorities(Set<String> roleNames) {
+    return roleNames.stream()
+        .map(Authority::fromRoleName)
+        .filter(Objects::nonNull)
+        .map(Authority::getAuthorities)
         .flatMap(Collection::parallelStream)
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toSet());
